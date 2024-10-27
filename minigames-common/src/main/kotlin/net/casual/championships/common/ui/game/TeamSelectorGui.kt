@@ -5,7 +5,7 @@ import net.casual.arcade.utils.ComponentUtils.white
 import net.casual.arcade.utils.ItemUtils.hideTooltip
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.casual.arcade.visuals.screen.setSlot
-import net.casual.championships.common.items.MenuItem
+import net.casual.championships.common.items.DisplayItems
 import net.casual.championships.common.ui.CommonSimpleGui
 import net.casual.championships.common.util.CommonComponents
 import net.minecraft.network.chat.Component
@@ -40,7 +40,7 @@ class TeamSelectorGui(
             }
         }
 
-        this.setSlot(58, MenuItem.RED_BACK.hideTooltip()) { ->
+        this.setSlot(58, DisplayItems.RED_BACK.hideTooltip()) { ->
             this.close()
         }
     }

@@ -1,13 +1,12 @@
 [versions]
-fabric-loom          = "1.7-SNAPSHOT"
-kotlin-serialization = "1.9.21"
-minecraft            = "1.21.1"
-fabric-loader        = "0.16.3"
+fabric-loom          = "1.8-SNAPSHOT"
+minecraft            = "1.21.3"
+fabric-loader        = "0.16.7"
 parchment            = "1.21:2024.07.28"
-fabric-api           = "0.103.0+1.21.1"
+fabric-api           = "0.106.1+1.21.3"
 fabric-kotlin        = "1.11.0+kotlin.2.0.0"
-map-canvas           = "0.4.1+1.21"
-arcade               = "0.3.0-alpha.34+1.21.1"
+map-canvas           = "0.5.0+1.21.3"
+arcade               = "0.3.1-alpha.6+1.21.3"
 server-replay        = "1.1.2+1.21.1"
 casual-database      = "0.2.0"
 
@@ -24,4 +23,3 @@ server-replay   = { module = "me.senseiwells:server-replay"                 , ve
 
 [plugins]
 fabric-loom   = { id = "fabric-loom", version.ref = "fabric-loom" }
-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin-serialization" }

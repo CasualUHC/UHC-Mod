@@ -12,7 +12,7 @@ import net.minecraft.world.item.Items
 import net.minecraft.world.item.component.ResolvableProfile
 import kotlin.jvm.optionals.getOrNull
 
-class PlayerHeadItem: HeadItem() {
+class PlayerHeadItem(properties: Properties): HeadItem(properties) {
     override fun addEffects(player: ServerPlayer) {
         player.addEffect(MobEffectInstance(MobEffects.REGENERATION, 60, 2))
         player.addEffect(MobEffectInstance(MobEffects.MOVEMENT_SPEED, 15 * 20, 1))

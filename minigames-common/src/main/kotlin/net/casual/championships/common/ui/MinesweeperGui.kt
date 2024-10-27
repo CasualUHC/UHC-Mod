@@ -11,10 +11,8 @@ import net.casual.arcade.utils.ComponentUtils
 import net.casual.arcade.utils.ComponentUtils.white
 import net.casual.arcade.utils.ItemUtils.named
 import net.casual.championships.common.event.MinesweeperWonEvent
-import net.casual.championships.common.items.MenuItem
-import net.casual.championships.common.items.MinesweeperItem
-import net.casual.championships.common.items.MinesweeperItem.Companion.MINE
-import net.casual.championships.common.items.MinesweeperItem.Companion.UNKNOWN
+import net.casual.championships.common.items.DisplayItems
+import net.casual.championships.common.items.MinesweeperItems
 import net.casual.championships.common.util.CommonComponents
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
@@ -36,7 +34,7 @@ class MinesweeperGui(
     private val guessed = IntArraySet()
     private val flags = IntArraySet()
     private val grid = Grid(9, 9)
-    private val flagItem = MinesweeperItem.FLAG_COUNTER.named(CommonComponents.MINESWEEPER_FLAGS)
+    private val flagItem = MinesweeperItems.FLAG_COUNTER.named(CommonComponents.MINESWEEPER_FLAGS)
     private val clockItem = Items.CLOCK.named(CommonComponents.MINESWEEPER_TIMER)
     private var complete = false
 
@@ -127,7 +125,7 @@ class MinesweeperGui(
             UNKNOWN_TILE
         } else {
             this.flags.add(index)
-            MinesweeperItem.FLAG.named(CommonComponents.MINESWEEPER_FLAG)
+            MinesweeperItems.FLAG.named(CommonComponents.MINESWEEPER_FLAG)
         }
         this.flagItem.count = (12 - flags.size).coerceAtLeast(1)
         this.setSlot(index, stack)
@@ -165,9 +163,9 @@ class MinesweeperGui(
     private fun getTileStack(tile: Int): ItemStack {
         check(tile <= 8 && tile >= -1) { "Invalid tile: $tile" }
         return when (tile) {
-            -1 -> MINE.named(CommonComponents.MINESWEEPER_MINE)
+            -1 -> MinesweeperItems.MINE.named(CommonComponents.MINESWEEPER_MINE)
             0 -> ItemStack.EMPTY
-            else -> MinesweeperItem.of(tile).named(tile.toString())
+            else -> MinesweeperItems.of(tile).named(tile.toString())
         }
     }
 
@@ -275,13 +273,13 @@ class MinesweeperGui(
     }
 
     companion object {
-        private val UNKNOWN_TILE = UNKNOWN.named("?")
-        private val EXIT_TILE = MenuItem.CROSS.named(CommonComponents.EXIT)
+        private val UNKNOWN_TILE = MinesweeperItems.UNKNOWN.named("?")
+        private val EXIT_TILE = DisplayItems.CROSS.named(CommonComponents.EXIT)
         private val DESC_TILE_1 = Items.OAK_SIGN.named(CommonComponents.MINESWEEPER_DESC_1)
         private val DESC_TILE_2 = Items.OAK_SIGN.named(CommonComponents.MINESWEEPER_DESC_2)
         private val DESC_TILE_3 = Items.OAK_SIGN.named(CommonComponents.MINESWEEPER_DESC_3)
         private val DESC_TILE_4 = Items.OAK_SIGN.named(CommonComponents.MINESWEEPER_DESC_4)
-        private val PLAY_AGAIN_TILE = MenuItem.GREEN_LONG_RIGHT.named(CommonComponents.MINESWEEPER_PLAY_AGAIN)
+        private val PLAY_AGAIN_TILE = DisplayItems.GREEN_LONG_RIGHT.named(CommonComponents.MINESWEEPER_PLAY_AGAIN)
 
         private val FORMAT = DecimalFormat("#.00")
 

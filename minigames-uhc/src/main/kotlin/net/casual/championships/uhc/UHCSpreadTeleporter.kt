@@ -80,7 +80,7 @@ object UHCSpreadTeleporter: ShapedTeleporter() {
 
             do {
                 pos.move(Direction.DOWN)
-            } while (chunk.getBlockState(pos).isAir && pos.y > level.minBuildHeight)
+            } while (chunk.getBlockState(pos).isAir && pos.y > level.minY)
         }
 
         val adjusted = SpawnPlacementTypes.ON_GROUND.adjustSpawnPosition(level, pos.immutable())

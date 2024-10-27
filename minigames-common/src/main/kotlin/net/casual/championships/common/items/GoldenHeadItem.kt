@@ -10,7 +10,7 @@ import net.minecraft.world.effect.MobEffects.*
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.component.ResolvableProfile
 
-class GoldenHeadItem: HeadItem() {
+class GoldenHeadItem(properties: Properties): HeadItem(properties) {
     override fun getResolvableProfile(stack: ItemStack): ResolvableProfile {
         return PolymerUtils.createProfileComponent(GOLDEN, null)
     }

@@ -5,7 +5,6 @@ import com.mojang.brigadier.Command
 import com.mojang.brigadier.arguments.BoolArgumentType
 import com.mojang.brigadier.context.CommandContext
 import eu.pb4.sgui.api.GuiHelpers
-import me.senseiwells.replay.player.PlayerRecorders
 import net.casual.arcade.border.tracker.MultiLevelBorderListener
 import net.casual.arcade.border.tracker.MultiLevelBorderTracker
 import net.casual.arcade.border.tracker.TrackedBorder
@@ -316,9 +315,9 @@ class UHCMinigame(
     private fun onPlayerDeath(event: PlayerDeathEvent) {
         val (player, source) = event
 
-        GlobalTickedScheduler.schedule(1.Seconds) {
-            PlayerRecorders.get(player)?.stop()
-        }
+        // GlobalTickedScheduler.schedule(1.Seconds) {
+        //     PlayerRecorders.get(player)?.stop()
+        // }
 
         this.onEliminated(player, player.getKillCreditWith(source))
     }
@@ -348,14 +347,14 @@ class UHCMinigame(
         player.resetHunger()
         player.resetExperience()
         player.clearPlayerInventory()
-        PlayerRecorders.get(player)?.stop()
+        // PlayerRecorders.get(player)?.stop()
     }
 
     @Listener
     private fun onPlayerItemRelease(event: PlayerItemReleaseEvent) {
         val (player, stack) = event
         if (stack.isOf(Items.BOW)) {
-            player.cooldowns.addCooldown(Items.BOW, this.settings.bowCooldown.ticks)
+            player.cooldowns.addCooldown(stack, this.settings.bowCooldown.ticks)
         }
     }
 
@@ -459,9 +458,9 @@ class UHCMinigame(
         val player = event.player
         this.mapRenderer.stopWatching(player)
 
-        if (!PlayerRecorders.has(player) && this.settings.replay) {
-            PlayerRecorders.create(player).start()
-        }
+        // if (!PlayerRecorders.has(player) && this.settings.replay) {
+        //     PlayerRecorders.create(player).start()
+        // }
     }
 
     @Listener

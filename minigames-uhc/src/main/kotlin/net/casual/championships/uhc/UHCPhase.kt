@@ -19,9 +19,11 @@ import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.casual.arcade.utils.TimeUtils.Minutes
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.TimeUtils.Ticks
+import net.casual.arcade.utils.impl.Location
 import net.casual.arcade.utils.impl.Sound
 import net.casual.arcade.utils.resetToDefault
 import net.casual.arcade.utils.set
+import net.casual.arcade.utils.teleportTo
 import net.casual.arcade.visuals.elements.ComponentElements
 import net.casual.arcade.visuals.elements.SidebarElements
 import net.casual.arcade.visuals.sidebar.Sidebar
@@ -59,7 +61,7 @@ enum class UHCPhase(
 
             for (player in minigame.players.spectating) {
                 if (player.level() != level) {
-                    player.teleportTo(level, 0.0, 200.0, 0.0, 0.0F, 0.0F)
+                    player.teleportTo(Location.of(0.0, 200.0, 0.0, 0.0F, 0.0F, level))
                 }
             }
 

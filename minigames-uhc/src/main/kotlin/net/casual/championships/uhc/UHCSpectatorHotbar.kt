@@ -9,7 +9,7 @@ import net.casual.arcade.minigame.gamemode.ExtendedGameMode.NoClipSpectator
 import net.casual.arcade.utils.ItemUtils.named
 import net.casual.arcade.utils.PlayerUtils.sendSound
 import net.casual.arcade.visuals.screen.setSlot
-import net.casual.championships.common.items.MenuItem
+import net.casual.championships.common.items.DisplayItems
 import net.casual.championships.common.util.CommonItems
 import net.casual.championships.common.util.CommonUI
 import net.minecraft.core.component.DataComponents
@@ -35,7 +35,7 @@ class UHCSpectatorHotbar(
             this.maps.add(i, element)
             this.addSlot(element)
         }
-        val switcher = MenuItem.GAMEMODE_SWITCHER
+        val switcher = DisplayItems.GAMEMODE_SWITCHER
             .named(Component.translatable("casual.spectator.gamemodeSwitcher"))
         this.setSlot(7, switcher) { ->
             this.player.sendSound(SoundEvents.UI_BUTTON_CLICK)

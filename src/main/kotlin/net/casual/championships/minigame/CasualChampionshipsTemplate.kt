@@ -96,9 +96,12 @@ class CasualChampionshipsTemplate(
                 Codec.STRING.listOf().fieldOf("operators").forGetter(SimpleMinigamesTemplate::operators),
                 MinigameData.CODEC.listOf().fieldOf("minigames").forGetter(SimpleMinigamesTemplate::minigames),
                 Codec.BOOL.fieldOf("repeat").forGetter(SimpleMinigamesTemplate::repeat),
-                ResourceKey.codec(Registries.BIOME).encodedOptionalFieldOf("lobby_biome", Biomes.PLAINS).forGetter(CasualChampionshipsTemplate::lobbyBiome),
-                Codec.STRING.listOf().encodedOptionalFieldOf("additional_packs", listOf()).forGetter(CasualChampionshipsTemplate::additionalPacks),
-                Codec.STRING.listOf().encodedOptionalFieldOf("lobby_packs", listOf()).forGetter(CasualChampionshipsTemplate::lobbyPacks)
+                ResourceKey.codec(Registries.BIOME).encodedOptionalFieldOf("lobby_biome", Biomes.PLAINS)
+                    .forGetter(CasualChampionshipsTemplate::lobbyBiome),
+                Codec.STRING.listOf().encodedOptionalFieldOf("additional_packs", listOf())
+                    .forGetter(CasualChampionshipsTemplate::additionalPacks),
+                Codec.STRING.listOf().encodedOptionalFieldOf("lobby_packs", listOf())
+                    .forGetter(CasualChampionshipsTemplate::lobbyPacks)
             ).apply(instance, ::CasualChampionshipsTemplate)
         }
     }

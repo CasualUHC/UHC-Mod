@@ -8,7 +8,7 @@ import net.casual.arcade.utils.ItemUtils
 import net.casual.arcade.utils.ItemUtils.hideTooltip
 import net.casual.arcade.utils.ItemUtils.named
 import net.casual.arcade.visuals.screen.setSlot
-import net.casual.championships.common.items.MenuItem
+import net.casual.championships.common.items.DisplayItems
 import net.casual.championships.common.ui.CommonSimpleGui
 import net.casual.championships.common.util.CommonComponents
 import net.casual.championships.common.util.CommonItems
@@ -25,7 +25,7 @@ class DuelPlayerSelectionGui(
     init {
         this.setParent(this.configuration)
 
-        this.setSlot(58, MenuItem.RED_BACK.hideTooltip()) { ->
+        this.setSlot(58, DisplayItems.RED_BACK.hideTooltip()) { ->
             this.openParentOrClose()
         }
 
@@ -60,12 +60,12 @@ class DuelPlayerSelectionGui(
             val slot = row * 9 + column
             val head = ItemUtils.createPlayerHead(player, CommonItems.FORWARD_FACING_PLAYER_HEAD)
             if (this.configuration.isPlayerSelected(player.uuid)) {
-                this.setSlot(slot - 9, MenuItem.GREEN_HIGHLIGHT.hideTooltip())
+                this.setSlot(slot - 9, DisplayItems.GREEN_HIGHLIGHT.hideTooltip())
             }
             val name = Component.literal(player.scoreboardName).yellow().mini()
             this.setSlot(slot, head.named(name)) { _, _, _, _ ->
                 if (this.configuration.toggleSelection(player.uuid)) {
-                    this.setSlot(slot - 9, MenuItem.GREEN_HIGHLIGHT.hideTooltip())
+                    this.setSlot(slot - 9, DisplayItems.GREEN_HIGHLIGHT.hideTooltip())
                 } else {
                     this.clearSlot(slot - 9)
                 }
@@ -78,20 +78,20 @@ class DuelPlayerSelectionGui(
         }
 
         if (this.page != 0) {
-            this.setSlot(57, MenuItem.RED_LEFT.hideTooltip()) { ->
+            this.setSlot(57, DisplayItems.RED_LEFT.hideTooltip()) { ->
                 this.page -= 1
                 this.loadPlayers()
             }
         } else {
-            this.setSlot(57, MenuItem.GREY_RED_LEFT.hideTooltip())
+            this.setSlot(57, DisplayItems.GREY_RED_LEFT.hideTooltip())
         }
         if ((this.page + 1) * 12 < players.size - 1) {
-            this.setSlot(59, MenuItem.RED_RIGHT.hideTooltip()) { ->
+            this.setSlot(59, DisplayItems.RED_RIGHT.hideTooltip()) { ->
                 this.page += 1
                 this.loadPlayers()
             }
         } else {
-            this.setSlot(59, MenuItem.GREY_RED_RIGHT.hideTooltip())
+            this.setSlot(59, DisplayItems.GREY_RED_RIGHT.hideTooltip())
         }
     }
 

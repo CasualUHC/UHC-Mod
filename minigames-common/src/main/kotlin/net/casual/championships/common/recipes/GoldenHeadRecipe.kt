@@ -9,7 +9,7 @@ import net.minecraft.world.item.crafting.CraftingBookCategory
 
 object GoldenHeadRecipe {
     val INSTANCE = CraftingRecipeBuilder.shaped {
-        id = CommonMod.id("golden_head_recipe")
+        key(CommonMod.id("golden_head_recipe"))
         category = CraftingBookCategory.MISC
         height = 3
         width = 3
@@ -21,5 +21,5 @@ object GoldenHeadRecipe {
             x, o, x,
             x, x, x
         )
-    }.build()
+    }
 }

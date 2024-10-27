@@ -2,7 +2,7 @@ package net.casual.championships.common.util
 
 import net.casual.arcade.utils.ItemUtils.named
 import net.casual.arcade.visuals.screen.SelectionGuiComponents
-import net.casual.championships.common.items.MenuItem
+import net.casual.championships.common.items.DisplayItems
 import net.casual.championships.common.util.CommonComponents.BACK
 import net.casual.championships.common.util.CommonComponents.EXIT
 import net.casual.championships.common.util.CommonComponents.NEXT
@@ -11,9 +11,9 @@ import net.minecraft.network.chat.Component
 
 object CommonScreens {
     private val COMPONENTS: SelectionGuiComponents = SelectionGuiComponents.Builder().apply {
-        next(MenuItem.GREEN_LONG_RIGHT.named(NEXT), MenuItem.GREY_GREEN_LONG_RIGHT.named(NEXT))
-        previous(MenuItem.GREEN_LONG_LEFT.named(PREVIOUS), MenuItem.GREY_GREEN_LONG_LEFT.named(PREVIOUS))
-        back(MenuItem.CROSS.named(BACK), MenuItem.CROSS.named(EXIT))
+        next(DisplayItems.GREEN_LONG_RIGHT.named(NEXT), DisplayItems.GREY_GREEN_LONG_RIGHT.named(NEXT))
+        previous(DisplayItems.GREEN_LONG_LEFT.named(PREVIOUS), DisplayItems.GREY_GREEN_LONG_LEFT.named(PREVIOUS))
+        back(DisplayItems.CROSS.named(BACK), DisplayItems.CROSS.named(EXIT))
     }
 
     fun named(title: Component): SelectionGuiComponents {

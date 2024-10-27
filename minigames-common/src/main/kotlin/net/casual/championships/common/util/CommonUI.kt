@@ -24,7 +24,7 @@ import net.casual.arcade.visuals.predicate.PlayerObserverPredicate.Companion.toP
 import net.casual.arcade.visuals.sidebar.Sidebar
 import net.casual.arcade.visuals.sidebar.SidebarComponent
 import net.casual.arcade.visuals.tab.PlayerListDisplay
-import net.casual.championships.common.items.TintedMenuItem
+import net.casual.championships.common.items.DisplayItems
 import net.casual.championships.common.ui.elements.SpectatorAndAdminTeamsElement
 import net.casual.championships.common.ui.elements.TeammateElement
 import net.casual.championships.common.ui.game.TeamSelectorGui
@@ -179,7 +179,7 @@ object CommonUI {
 
     fun createTeamSelectionGui(minigame: Minigame<*>, player: ServerPlayer): TeamSelectorGui {
         val selections = minigame.teams.getAllNonSpectatorOrAdminTeams().sortedBy { it.name }.map {
-            val flag = TintedMenuItem.FLAG
+            val flag = DisplayItems.FLAG
             val color = it.getHexColor()
             if (color != null) {
                 flag.set(DataComponents.DYED_COLOR, DyedItemColor(color, false))

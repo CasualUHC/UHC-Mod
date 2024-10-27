@@ -11,7 +11,7 @@ import net.casual.arcade.utils.ItemUtils.potion
 import net.casual.arcade.utils.TimeUtils.Minutes
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.TimeUtils.Ticks
-import net.casual.championships.common.items.BorderItem
+import net.casual.championships.common.items.DisplayItems
 import net.casual.championships.common.minigame.CasualSettings
 import net.casual.championships.uhc.border.UHCBorderSize
 import net.casual.championships.uhc.border.UHCBorderStage
@@ -34,7 +34,7 @@ class UHCSettings(private val uhc: UHCMinigame): CasualSettings(uhc) {
 
     var borderSizeMultiplier by this.register(float64 {
         name = "border_size_multiplier"
-        display = BorderItem.BORDER_RADIUS.named("Border Size Multiplier")
+        display = DisplayItems.BORDER_RADIUS.named("Border Size Multiplier")
         value = 1.0
         option("one_third", Items.SCAFFOLDING.named("0.33x Size"), 1.0 / 3.0)
         option("half", Items.ANVIL.named("0.5x Size"), 0.5)
@@ -46,7 +46,7 @@ class UHCSettings(private val uhc: UHCMinigame): CasualSettings(uhc) {
 
     var borderTime by this.register(time {
         name = "border_completion_time"
-        display = BorderItem.BORDER_DISTANCE.named("Border Completion Time")
+        display = DisplayItems.BORDER_DISTANCE.named("Border Completion Time")
         value = 120.Minutes
         option("ten_minutes", Items.CAKE.named("10 Minutes"), 10.Minutes)
         option("thirty_minutes", Items.SCULK_SENSOR.named("30 Minutes"), 30.Minutes)

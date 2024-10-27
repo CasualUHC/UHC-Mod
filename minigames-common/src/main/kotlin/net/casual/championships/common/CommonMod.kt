@@ -10,8 +10,7 @@ import net.casual.arcade.resources.utils.ResourcePackUtils.addLangsFromData
 import net.casual.arcade.resources.utils.ResourcePackUtils.addMissingItemModels
 import net.casual.arcade.resources.utils.ResourcePackUtils.addSounds
 import net.casual.arcade.utils.ComponentUtils.literal
-import net.casual.championships.common.items.MenuItem
-import net.casual.championships.common.items.TintedMenuItem
+import net.casual.championships.common.items.DisplayItems
 import net.casual.championships.common.level.ReducedMobSpawningRules
 import net.casual.championships.common.util.*
 import net.fabricmc.api.ModInitializer
@@ -72,12 +71,11 @@ object CommonMod: ModInitializer {
         PolymerItemGroupUtils.registerPolymerItemGroup(
             id("menu"),
             CreativeModeTab.builder(CreativeModeTab.Row.TOP, 7)
-                .title("Menu Items".literal())
-                .icon(MenuItem::TICK)
+                .title("Display Items".literal())
+                .icon(DisplayItems::TICK)
                 .alignedRight()
                 .displayItems { _, output ->
-                    output.acceptAll(MenuItem.MODELLER.all())
-                    output.accept(TintedMenuItem.FLAG)
+                    output.acceptAll(DisplayItems.all())
                 }
                 .build()
         )

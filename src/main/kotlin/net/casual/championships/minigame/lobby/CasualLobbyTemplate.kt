@@ -54,8 +54,10 @@ class CasualLobbyTemplate(
                 TimerBossbarTemplate.CODEC.fieldOf("bossbar").forGetter(SimpleLobbyTemplate::bossbar),
                 LocationTemplate.CODEC.fieldOf("podium").forGetter(CasualLobbyTemplate::podium),
                 LocationTemplate.CODEC.fieldOf("podium_view").forGetter(CasualLobbyTemplate::podiumView),
-                LocationTemplate.CODEC.listOf().fieldOf("firework_locations").forGetter(CasualLobbyTemplate::fireworkLocations),
-                DuelArenasTemplate.CODEC.listOf().encodedOptionalFieldOf("duel_arenas", listOf()).forGetter(CasualLobbyTemplate::duelArenas)
+                LocationTemplate.CODEC.listOf().fieldOf("firework_locations")
+                    .forGetter(CasualLobbyTemplate::fireworkLocations),
+                DuelArenasTemplate.CODEC.listOf().encodedOptionalFieldOf("duel_arenas", listOf())
+                    .forGetter(CasualLobbyTemplate::duelArenas)
             ).apply(instance, ::CasualLobbyTemplate)
         }
     }

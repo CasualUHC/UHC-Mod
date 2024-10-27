@@ -6,7 +6,6 @@ import it.unimi.dsi.fastutil.doubles.Double2ObjectLinkedOpenHashMap
 import it.unimi.dsi.fastutil.doubles.Double2ObjectMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.casual.arcade.dimensions.level.vanilla.VanillaLikeLevel
-import net.casual.arcade.items.ItemModeller.Companion.registerNextModel
 import net.casual.arcade.resources.font.heads.PlayerHeadComponents
 import net.casual.arcade.utils.ComponentUtils
 import net.casual.arcade.utils.ComponentUtils.literal
@@ -20,13 +19,12 @@ import net.minecraft.core.Holder
 import net.minecraft.core.component.DataComponents
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceKey
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.tags.BiomeTags
 import net.minecraft.util.Mth
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.Items
-import net.minecraft.world.item.component.CustomModelData
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.biome.Biome
 import net.minecraft.world.level.biome.Biomes
@@ -59,9 +57,9 @@ class UHCMapRenderer(private val uhc: UHCMinigame) {
     fun getMaps(): List<ItemStack> {
         return this.canvases.values.map { data ->
             val map = data.canvas.asStack()
-            val model = data.customModel
+            val model = data.model
             if (model != null) {
-                map.set(DataComponents.CUSTOM_MODEL_DATA, model)
+                map.set(DataComponents.ITEM_MODEL, model)
             }
             map
         }
@@ -75,9 +73,9 @@ class UHCMapRenderer(private val uhc: UHCMinigame) {
         val dimension = VanillaLikeLevel.getLikeDimension(level)
         val (canvas, _, _, sizeIcon, playerIcons) = this.canvases.getOrPut(level.dimension()) {
             val (dimensionName, model) = when (dimension) {
-                Level.OVERWORLD -> "overworld" to CustomModelData(OVERWORLD_ID)
-                Level.NETHER -> "nether" to CustomModelData(NETHER_ID)
-                Level.END -> "end" to CustomModelData(END_ID)
+                Level.OVERWORLD -> "overworld" to OVERWORLD_ID
+                Level.NETHER -> "nether" to NETHER_ID
+                Level.END -> "end" to END_ID
                 else -> level.dimension().location().path to null
             }
 
@@ -238,7 +236,7 @@ class UHCMapRenderer(private val uhc: UHCMinigame) {
                 do {
                     pos.setY(--height)
                     state = chunk.getBlockState(pos)
-                } while (state.getMapColor(level, pos) == MapColor.NONE && height > level.minBuildHeight)
+                } while (state.getMapColor(level, pos) == MapColor.NONE && height > level.minY)
 
                 canvas.set(x, y, state.getMapColor(level, pos), MapColor.Brightness.NORMAL)
                 dy += step
@@ -329,22 +327,16 @@ class UHCMapRenderer(private val uhc: UHCMinigame) {
 
     private data class CanvasData(
         val canvas: PlayerCanvas,
-        val customModel: CustomModelData?,
+        val model: ResourceLocation?,
         val dimensionIcon: CanvasIcon,
         val sizeIcon: CanvasIcon,
         val playerIcons: MutableMap<UUID, CanvasIcon>
     )
 
     companion object {
-        val OVERWORLD_ID = CommonMod.CUSTOM_MODEL_PACK.getCreator().registerNextModel(
-            Items.FILLED_MAP, CommonMod.id("gui/overworld_map")
-        )
-        val NETHER_ID = CommonMod.CUSTOM_MODEL_PACK.getCreator().registerNextModel(
-            Items.FILLED_MAP, CommonMod.id("gui/nether_map")
-        )
-        val END_ID = CommonMod.CUSTOM_MODEL_PACK.getCreator().registerNextModel(
-            Items.FILLED_MAP, CommonMod.id("gui/end_map")
-        )
+        private val OVERWORLD_ID = CommonMod.id("gui/overworld_map")
+        private val NETHER_ID = CommonMod.id("gui/nether_map")
+        private val END_ID = CommonMod.id("gui/end_map")
 
         fun noop() {
 

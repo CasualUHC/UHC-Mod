@@ -1,29 +1,28 @@
 package net.casual.championships.common.items
 
 import eu.pb4.polymer.core.api.item.PolymerItem
-import net.casual.arcade.items.ItemModeller.Companion.registerNextModel
-import net.casual.championships.common.CommonMod.CUSTOM_MODEL_PACK
-import net.casual.championships.common.CommonMod.id
+import net.casual.championships.common.CommonMod
 import net.casual.championships.common.entities.MysteriousPearl
-import net.minecraft.server.level.ServerPlayer
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.InteractionResultHolder
+import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.Items.POPPED_CHORUS_FRUIT
+import net.minecraft.world.item.Items
 import net.minecraft.world.level.Level
+import xyz.nucleoid.packettweaker.PacketContext
 
-class MysteriousPearlItem: Item(Properties()), PolymerItem {
-    override fun getPolymerItem(stack: ItemStack, player: ServerPlayer?): Item {
-        return POPPED_CHORUS_FRUIT
+class MysteriousPearlItem(properties: Properties): Item(properties), PolymerItem {
+    override fun getPolymerItem(stack: ItemStack, context: PacketContext): Item {
+        return Items.POPPED_CHORUS_FRUIT
     }
 
-    override fun getPolymerCustomModelData(itemStack: ItemStack?, player: ServerPlayer?): Int {
-        return MODEL_ID
+    override fun getPolymerItemModel(stack: ItemStack, context: PacketContext): ResourceLocation {
+        return CommonMod.id("test/mysterious_pearl")
     }
 
-    override fun use(level: Level, player: Player, usedHand: InteractionHand): InteractionResultHolder<ItemStack> {
+    override fun use(level: Level, player: Player, usedHand: InteractionHand): InteractionResult {
         val stack = player.getItemInHand(usedHand)
 
         val throwable = MysteriousPearl(level, player)
@@ -32,13 +31,6 @@ class MysteriousPearlItem: Item(Properties()), PolymerItem {
 
         stack.consume(1, player)
 
-        return InteractionResultHolder.success(stack)
-    }
-
-    companion object {
-        private val MODEL_ID = CUSTOM_MODEL_PACK.getCreator().registerNextModel(
-            POPPED_CHORUS_FRUIT,
-            id("test/mysterious_pearl"),
-        )
+        return InteractionResult.SUCCESS.heldItemTransformedTo(stack)
     }
 }

@@ -11,10 +11,10 @@ import net.casual.arcade.utils.ComponentUtils.mini
 import net.casual.arcade.utils.ItemUtils.named
 import net.casual.arcade.visuals.screen.SelectionGuiBuilder
 import net.casual.arcade.visuals.screen.SelectionGuiStyle
-import net.casual.championships.common.items.MenuItem.Companion.CROSS
-import net.casual.championships.common.items.MenuItem.Companion.CROSS_SELECTED
-import net.casual.championships.common.items.MenuItem.Companion.TICK
-import net.casual.championships.common.items.MenuItem.Companion.TICK_SELECTED
+import net.casual.championships.common.items.DisplayItems.CROSS
+import net.casual.championships.common.items.DisplayItems.CROSS_SELECTED
+import net.casual.championships.common.items.DisplayItems.TICK
+import net.casual.championships.common.items.DisplayItems.TICK_SELECTED
 import net.casual.championships.common.util.CommonComponents.DISABLE
 import net.casual.championships.common.util.CommonComponents.DISABLED
 import net.casual.championships.common.util.CommonComponents.ENABLE

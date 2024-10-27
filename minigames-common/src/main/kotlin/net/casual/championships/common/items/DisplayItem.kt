@@ -6,7 +6,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import xyz.nucleoid.packettweaker.PacketContext
 
-class MinesweeperItem(properties: Properties): Item(properties), PolymerItem {
+class DisplayItem(properties: Properties): Item(properties), PolymerItem {
     override fun getPolymerItem(stack: ItemStack, context: PacketContext): Item {
         return Items.POPPED_CHORUS_FRUIT
     }

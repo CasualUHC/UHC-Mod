@@ -11,7 +11,7 @@ import net.casual.arcade.utils.ItemUtils.named
 import net.casual.arcade.utils.PlayerUtils.location
 import net.casual.arcade.utils.PlayerUtils.teleportTo
 import net.casual.arcade.visuals.screen.setSlot
-import net.casual.championships.common.items.MenuItem
+import net.casual.championships.common.items.DisplayItems
 import net.casual.championships.common.ui.CommonSimpleGui
 import net.casual.championships.common.util.CommonComponents
 import net.casual.championships.common.util.CommonItems
@@ -39,7 +39,7 @@ class PlayerSelectorGui(
             }
         }
 
-        this.setSlot(58, MenuItem.RED_BACK.hideTooltip()) { ->
+        this.setSlot(58, DisplayItems.RED_BACK.hideTooltip()) { ->
             this.openParentOrClose()
         }
     }

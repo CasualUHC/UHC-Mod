@@ -10,20 +10,24 @@ import net.casual.arcade.utils.ItemUtils.hideAttributeTooltips
 import net.casual.arcade.utils.ItemUtils.named
 import net.casual.arcade.utils.ItemUtils.potion
 import net.casual.championships.common.arena.ArenaTemplate
-import net.casual.championships.common.items.MenuItem
-import net.casual.championships.common.items.MenuItem.Companion.LARGE
-import net.casual.championships.common.items.MenuItem.Companion.LARGE_SELECTED
-import net.casual.championships.common.items.MenuItem.Companion.MEDIUM
-import net.casual.championships.common.items.MenuItem.Companion.MEDIUM_SELECTED
-import net.casual.championships.common.items.MenuItem.Companion.ONE_TIMES
-import net.casual.championships.common.items.MenuItem.Companion.ONE_TIMES_SELECTED
-import net.casual.championships.common.items.MenuItem.Companion.SMALL
-import net.casual.championships.common.items.MenuItem.Companion.SMALL_SELECTED
-import net.casual.championships.common.items.MenuItem.Companion.THREE_TIMES
-import net.casual.championships.common.items.MenuItem.Companion.THREE_TIMES_SELECTED
-import net.casual.championships.common.items.MenuItem.Companion.TWO_TIMES
-import net.casual.championships.common.items.MenuItem.Companion.TWO_TIMES_SELECTED
-import net.casual.championships.common.items.TintedMenuItem
+import net.casual.championships.common.items.DisplayItems.ARENA
+import net.casual.championships.common.items.DisplayItems.FLAG
+import net.casual.championships.common.items.DisplayItems.GLOWING
+import net.casual.championships.common.items.DisplayItems.GREEN_DIAGONAL
+import net.casual.championships.common.items.DisplayItems.HEALTH_BOOST
+import net.casual.championships.common.items.DisplayItems.LARGE
+import net.casual.championships.common.items.DisplayItems.LARGE_SELECTED
+import net.casual.championships.common.items.DisplayItems.MEDIUM
+import net.casual.championships.common.items.DisplayItems.MEDIUM_SELECTED
+import net.casual.championships.common.items.DisplayItems.NATURAL_REGEN
+import net.casual.championships.common.items.DisplayItems.ONE_TIMES
+import net.casual.championships.common.items.DisplayItems.ONE_TIMES_SELECTED
+import net.casual.championships.common.items.DisplayItems.SMALL
+import net.casual.championships.common.items.DisplayItems.SMALL_SELECTED
+import net.casual.championships.common.items.DisplayItems.THREE_TIMES
+import net.casual.championships.common.items.DisplayItems.THREE_TIMES_SELECTED
+import net.casual.championships.common.items.DisplayItems.TWO_TIMES
+import net.casual.championships.common.items.DisplayItems.TWO_TIMES_SELECTED
 import net.casual.championships.common.minigame.CasualSettings
 import net.casual.championships.duel.arena.ArenaSize
 import net.casual.championships.duel.arena.ArenaSize.*
@@ -40,7 +44,7 @@ class DuelSettings(
 ): DisplayableSettings(CasualSettings.Defaults(Component.translatable("casual.gui.duel.settings").mini())) {
     val displayableTeams = bool {
         name = "teams"
-        val flag = TintedMenuItem.FLAG.named(Component.translatable("casual.gui.duel.settings.teams").mini())
+        val flag = FLAG.named(Component.translatable("casual.gui.duel.settings.teams").mini())
         flag.set(DataComponents.DYED_COLOR, DyedItemColor(0xFF0000, false))
         display = flag
         value = false
@@ -50,7 +54,7 @@ class DuelSettings(
 
     val displayableHealth = float64 {
         name = "health"
-        display = MenuItem.HEALTH_BOOST.named(Component.translatable("casual.gui.duel.settings.health").mini())
+        display = HEALTH_BOOST.named(Component.translatable("casual.gui.duel.settings.health").mini())
             .potion(Potions.HEALING)
             .hideAttributeTooltips()
         value = 1.0
@@ -68,7 +72,7 @@ class DuelSettings(
 
     val displayableNaturalRegen = bool {
         name = "natural_regeneration"
-        display = MenuItem.NATURAL_REGEN.named(Component.translatable("casual.gui.duel.settings.naturalRegeneration").mini())
+        display = NATURAL_REGEN.named(Component.translatable("casual.gui.duel.settings.naturalRegeneration").mini())
         value = false
         defaults.options(this)
     }
@@ -76,7 +80,7 @@ class DuelSettings(
 
     val displayableGlowing = bool {
         name = "glowing"
-        display = MenuItem.GLOWING.named(Component.translatable("casual.gui.duel.settings.glowing").mini())
+        display = GLOWING.named(Component.translatable("casual.gui.duel.settings.glowing").mini())
         value = false
         defaults.options(this)
     }
@@ -92,7 +96,7 @@ class DuelSettings(
 
     val displayableArena = string {
         name = "arena"
-        display = MenuItem.ARENA.named(Component.translatable("casual.gui.duel.settings.arena").mini())
+        display = ARENA.named(Component.translatable("casual.gui.duel.settings.arena").mini())
         value = arenas.randomOrNull()?.name ?: ""
         for (arena in arenas) {
             option(arena.name, arena.display, arena.name)
@@ -102,7 +106,7 @@ class DuelSettings(
 
     val displayableArenaSize = enumeration<ArenaSize> {
         name = "arena_size"
-        display = MenuItem.GREEN_DIAGONAL.named(Component.translatable("casual.gui.duel.settings.arenaSize").mini())
+        display = GREEN_DIAGONAL.named(Component.translatable("casual.gui.duel.settings.arenaSize").mini())
         value = enumEntries<ArenaSize>().random()
         option("small", ONE_TIMES.named("Small"), Small) { setting, _, _ ->
             (if (setting.get() == Small) SMALL_SELECTED else SMALL).named("Small")

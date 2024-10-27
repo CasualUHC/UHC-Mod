@@ -4,7 +4,7 @@ plugins {
         .split("+")[0]
 
     kotlin("jvm").version(jvmVersion)
-    alias(libs.plugins.kotlin.serialization)
+    kotlin("plugin.serialization").version(jvmVersion)
     alias(libs.plugins.fabric.loom)
     `maven-publish`
     java
@@ -12,7 +12,7 @@ plugins {
 
 allprojects {
     group = "net.casual"
-    version = "1.0.4"
+    version = "1.1.0"
 
     apply(plugin = "fabric-loom")
     apply(plugin = "org.jetbrains.kotlin.jvm")
@@ -50,7 +50,7 @@ allprojects {
         modImplementation(libs.fabric.kotlin)
 
         modImplementation(libs.arcade)
-        modImplementation(libs.server.replay)
+        // modCompileOnly(libs.server.replay)
 
         modImplementation(libs.map.canvas)
     }

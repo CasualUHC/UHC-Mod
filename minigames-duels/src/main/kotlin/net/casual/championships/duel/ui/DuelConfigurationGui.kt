@@ -1,7 +1,6 @@
 package net.casual.championships.duel.ui
 
 import eu.pb4.sgui.api.elements.GuiElement
-import eu.pb4.sgui.api.gui.SimpleGui
 import net.casual.arcade.utils.ComponentUtils
 import net.casual.arcade.utils.ComponentUtils.grey
 import net.casual.arcade.utils.ComponentUtils.literal
@@ -11,7 +10,7 @@ import net.casual.arcade.utils.ItemUtils.hideTooltip
 import net.casual.arcade.utils.ItemUtils.lore
 import net.casual.arcade.utils.ItemUtils.named
 import net.casual.arcade.visuals.screen.setSlot
-import net.casual.championships.common.items.MenuItem
+import net.casual.championships.common.items.DisplayItems
 import net.casual.championships.common.ui.CommonSimpleGui
 import net.casual.championships.common.util.CommonComponents
 import net.casual.championships.common.util.CommonItems
@@ -33,7 +32,7 @@ class DuelConfigurationGui(
     private val waiting: GuiElement
 
     init {
-        val settings = MenuItem.GEAR
+        val settings = DisplayItems.GEAR
         settings.named("Settings".literal().mini())
         this.setSlot(47, settings) { ->
             DuelSettingsGui(this.player, this.settings, this).open()
@@ -45,21 +44,21 @@ class DuelConfigurationGui(
             DuelPlayerSelectionGui(this.player, this).open()
         }
 
-        val confirm = MenuItem.TICK
+        val confirm = DisplayItems.TICK
         confirm.named(CommonComponents.CONFIRM.mini())
         this.confirm = GuiElement(confirm) { _, _, _, _ ->
             val playerList = this.player.server.playerList
             this.start.invoke(this.player, this.selectedPlayers.mapNotNull(playerList::getPlayer), this.settings)
             this.close()
         }
-        val waiting = MenuItem.GREY_TICK
+        val waiting = DisplayItems.GREY_TICK
         waiting.named(CommonComponents.CONFIRM.mini())
         waiting.lore("Select players to start!".literal().grey().mini())
         this.waiting = GuiElement(waiting, GuiElement.EMPTY_CALLBACK)
 
         this.setSlot(49, this.waiting)
 
-        this.setSlot(58, MenuItem.RED_BACK.hideTooltip()) { ->
+        this.setSlot(58, DisplayItems.RED_BACK.hideTooltip()) { ->
             this.close()
         }
 

@@ -1,13 +1,13 @@
 package net.casual.championships.common.datagen
 
 import eu.pb4.polymer.resourcepack.api.ResourcePackCreator
-import net.casual.arcade.datagen.language.*
+import net.casual.arcade.datagen.language.CentredSpacingGenerator
+import net.casual.arcade.datagen.language.LanguageGenerator
+import net.casual.arcade.datagen.language.NegativeWidthGenerator
+import net.casual.arcade.datagen.language.WidthDifferenceGenerator
 import net.casual.arcade.datagen.resource.ArcadeResourceGenerator
-import net.casual.arcade.minigame.managers.chat.MinigameChatMode
 import net.casual.arcade.minigame.managers.chat.MinigameChatMode.*
 import net.casual.arcade.resources.creator.NamedResourcePackCreator
-import net.casual.arcade.utils.ComponentUtils
-import net.casual.arcade.utils.ComponentUtils.getTranslationKeyOf
 import net.casual.arcade.utils.ComponentUtils.mini
 import net.casual.championships.common.CommonMod
 import net.casual.championships.common.util.CommonComponents

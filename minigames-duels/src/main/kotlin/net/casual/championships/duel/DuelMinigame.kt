@@ -41,13 +41,13 @@ import net.casual.championships.common.util.CommonItems
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.core.HolderLookup
+import net.minecraft.core.component.DataComponents
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.tags.ItemTags
+import net.minecraft.util.context.ContextKeySet
 import net.minecraft.world.InteractionResult
-import net.minecraft.world.InteractionResultHolder
-import net.minecraft.world.item.ArmorItem
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
@@ -56,7 +56,6 @@ import net.minecraft.world.level.GameType
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes
 import net.minecraft.world.level.storage.loot.LootParams
 import net.minecraft.world.level.storage.loot.LootTable
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet
 import kotlin.random.Random
 
 class DuelMinigame(
@@ -136,7 +135,7 @@ class DuelMinigame(
     @Listener
     private fun onPlayerItemUse(event: PlayerItemUseEvent) {
         if (event.stack.isOf(ItemTags.BOATS)) {
-            event.cancel(InteractionResultHolder.pass(event.stack))
+            event.cancel(InteractionResult.PASS)
         }
     }
 
@@ -205,21 +204,21 @@ class DuelMinigame(
     private fun onMinigameSetPlaying(event: MinigameSetPlayingEvent) {
         val player = event.player
 
-        this.recipes.grantSilently(player, listOf(GoldenHeadRecipe.INSTANCE))
+        this.recipes.grant(player, GoldenHeadRecipe.INSTANCE, true)
         player.setGameMode(GameType.SURVIVAL)
         player.boostHealth(this.duelSettings.health)
         player.resetHealth()
 
         val stacks = getOrCreateLootTable(this.server.registryAccess()).getRandomItems(
-            LootParams.Builder(player.serverLevel()).create(LootContextParamSet.builder().build()),
+            LootParams.Builder(player.serverLevel()).create(ContextKeySet.Builder().build()),
             Random.nextLong()
         )
 
         player.clearPlayerInventory()
         for (stack in stacks) {
-            val item = stack.item
-            if (item is ArmorItem) {
-                player.setItemSlot(item.type.slot, stack)
+            val armor = stack.get(DataComponents.EQUIPPABLE)
+            if (armor != null) {
+                player.setItemSlot(armor.slot, stack)
                 continue
             }
             player.inventory.add(stack)
