@@ -10,7 +10,7 @@ import net.casual.arcade.visuals.tab.VanillaPlayerListEntries
 import net.minecraft.network.chat.Component
 
 class SimpleCasualPlayerListEntries(
-    val minigame: Minigame<*>
+    val minigame: Minigame
 ): VanillaPlayerListEntries(
     { minigame.players.all },
     Comparator.comparing(minigame.players::isSpectating).thenComparing(DEFAULT_ORDER)

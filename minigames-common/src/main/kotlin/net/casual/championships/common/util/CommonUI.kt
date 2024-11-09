@@ -133,19 +133,19 @@ object CommonUI {
         })
     }
 
-    fun createTeamMinigameTabDisplay(minigame: Minigame<*>): PlayerListDisplay {
+    fun createTeamMinigameTabDisplay(minigame: Minigame): PlayerListDisplay {
         val display = PlayerListDisplay(CasualPlayerListEntries(minigame))
         addCasualFooterAndHeader(minigame, display)
         return display
     }
 
-    fun createSimpleTabDisplay(minigame: Minigame<*>): PlayerListDisplay {
+    fun createSimpleTabDisplay(minigame: Minigame): PlayerListDisplay {
         val display = PlayerListDisplay(SimpleCasualPlayerListEntries(minigame))
         addCasualFooterAndHeader(minigame, display)
         return display
     }
 
-    fun addCasualFooterAndHeader(minigame: Minigame<*>, display: PlayerListDisplay) {
+    fun addCasualFooterAndHeader(minigame: Minigame, display: PlayerListDisplay) {
         val hostedByKiwiTech = Component.empty()
             .append(SERVER_HOSTED_BY)
             .append(ComponentUtils.space())
@@ -177,7 +177,7 @@ object CommonUI {
         )
     }
 
-    fun createTeamSelectionGui(minigame: Minigame<*>, player: ServerPlayer): TeamSelectorGui {
+    fun createTeamSelectionGui(minigame: Minigame, player: ServerPlayer): TeamSelectorGui {
         val selections = minigame.teams.getAllNonSpectatorOrAdminTeams().sortedBy { it.name }.map {
             val flag = DisplayItems.FLAG
             val color = it.getHexColor()

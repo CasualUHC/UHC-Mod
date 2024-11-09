@@ -6,27 +6,20 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.player.PlayerJoinEvent
 import net.casual.arcade.events.player.PlayerRequestLoginEvent
 import net.casual.arcade.events.player.PlayerTeamJoinEvent
-import net.casual.arcade.events.player.PlayerTeamLeaveEvent
 import net.casual.arcade.events.server.ServerLoadedEvent
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
 import net.casual.arcade.events.server.ServerSaveEvent
 import net.casual.arcade.events.server.ServerStoppingEvent
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.minigame.chat.ChatFormatter
-import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
-import net.casual.arcade.minigame.events.MinigameCloseEvent
-import net.casual.arcade.minigame.events.MinigameCompleteEvent
-import net.casual.arcade.minigame.events.MinigamePauseEvent
-import net.casual.arcade.minigame.lobby.LobbyMinigame
+import net.casual.arcade.minigame.events.*
 import net.casual.arcade.minigame.ready.MinigamePlayerReadyHandler
 import net.casual.arcade.minigame.ready.ReadyChecker
-import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.template.minigame.MinigamesTemplate
 import net.casual.arcade.minigame.template.minigame.SequentialMinigames
+import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.casual.arcade.minigame.utils.MinigameResources
 import net.casual.arcade.minigame.utils.MinigameUtils.broadcastChangesToAdmin
-import net.casual.arcade.resources.pack.PackInfo
 import net.casual.arcade.resources.utils.ResourcePackUtils.toPackInfo
 import net.casual.arcade.utils.ComponentUtils.bold
 import net.casual.arcade.utils.ComponentUtils.color
@@ -38,7 +31,7 @@ import net.casual.arcade.utils.ComponentUtils.yellow
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.PlayerUtils.broadcastToOps
 import net.casual.arcade.utils.ServerUtils.setMessageOfTheDay
-import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
+import net.casual.arcade.utils.codec.CodecProvider.Companion.register
 import net.casual.arcade.utils.impl.Sound
 import net.casual.arcade.utils.toSmallCaps
 import net.casual.championships.CasualMod
@@ -55,11 +48,12 @@ import net.casual.championships.data.DatabaseDataManager
 import net.casual.championships.data.JsonDataManager
 import net.casual.championships.data.MultiDataManager
 import net.casual.championships.duel.DuelMinigame
-import net.casual.championships.duel.DuelSettings
+import net.casual.championships.duel.DuelMinigameFactory
 import net.casual.championships.events.CasualConfigReloaded
-import net.casual.championships.minigame.lobby.CasualLobbyMinigame
+import net.casual.championships.minigame.lobby.CasualLobbyMinigameFactory
 import net.casual.championships.resources.CasualResourcePackHost
 import net.casual.championships.uhc.UHCMinigame
+import net.casual.championships.uhc.UHCMinigameFactory
 import net.casual.championships.util.CasualConfig
 import net.casual.championships.util.CasualTeamUtils.getOrCreateAdminTeam
 import net.casual.championships.util.CasualTeamUtils.getOrCreateSpectatorTeam
@@ -85,7 +79,7 @@ object CasualMinigames {
 
     private var dataManager: DataManager? = null
 
-    val minigame: Minigame<*>
+    val minigame: Minigame
         get() = this.getMinigames().getCurrent()
 
     @JvmField
@@ -116,9 +110,12 @@ object CasualMinigames {
     }
 
     internal fun registerEvents() {
-        Minigames.registerFactory(UHCMinigame.ID, this::createUHCMinigame)
-        Minigames.registerFactory(DuelMinigame.ID, this::createDuelMinigame)
-        Minigames.registerFactory(CasualLobbyMinigame.ID, this::createLobbyMinigame)
+        GlobalEventHandler.register<MinigameInitializeEvent> { event -> this.modifyMinigame(event.minigame) }
+
+        // TODO: Move these?
+        UHCMinigameFactory.register(MinigameRegistries.MINIGAME_FACTORY)
+        DuelMinigameFactory.register(MinigameRegistries.MINIGAME_FACTORY)
+        CasualLobbyMinigameFactory.register(MinigameRegistries.MINIGAME_FACTORY)
 
         GlobalEventHandler.register<ServerRegisterCommandEvent> { event ->
             event.register(MinesweeperCommand, CasualCommand)
@@ -176,55 +173,35 @@ object CasualMinigames {
         }
     }
 
-    fun createLobbyMinigame(context: MinigameCreationContext): LobbyMinigame {
-        return this.getMinigames().event.createLobby(context.server)
+    private fun modifyMinigame(minigame: Minigame) {
+        when (minigame) {
+            is UHCMinigame -> this.modifyUHCMinigame(minigame)
+            is DuelMinigame -> this.modifyDuelMinigame(minigame)
+        }
     }
 
-    fun createUHCMinigame(context: MinigameCreationContext): UHCMinigame {
-        val minigame = UHCMinigame.create(context)
-
+    private fun modifyUHCMinigame(minigame: UHCMinigame) {
         PerformanceUtils.reduceMinigameMobcap(minigame)
         PerformanceUtils.disableEntityAI(minigame)
-        this.setCasualUI(minigame)
+        setCasualUI(minigame)
 
-        minigame.addResources(object: MinigameResources {
-            override fun getPacks(): Collection<PackInfo> {
-                return listOf(CasualResourcePackHost.uhc.toPackInfo(!CasualMod.config.dev))
-            }
-        })
+        minigame.resources.addResources(
+            MinigameResources.of(CasualResourcePackHost.uhc.toPackInfo(!CasualMod.config.dev))
+        )
 
         minigame.events.register<MinigameCloseEvent> {
-            this.getMinigames().returnToLobby()
-        }
-        minigame.events.register<PlayerTeamJoinEvent> {
-            for (teammate in it.team.getOnlinePlayers()) {
-                minigame.effects.forceUpdate(teammate, it.player)
-                minigame.effects.forceUpdate(it.player, teammate)
-            }
-        }
-        minigame.events.register<PlayerTeamLeaveEvent> {
-            for (teammate in it.team.getOnlinePlayers()) {
-                minigame.effects.forceUpdate(teammate, it.player)
-                minigame.effects.forceUpdate(it.player, teammate)
-            }
+            getMinigames().returnToLobby()
         }
         minigame.events.register<MinigameCompleteEvent> {
             this.winners.clear()
             this.winners.addAll(minigame.winners)
-            this.getDataManager().syncUHCData(minigame)
+            getDataManager().syncUHCData(minigame)
         }
 
         minigame.settings.replay = !CasualMod.config.dev
-
-        return minigame
     }
 
-    fun createDuelMinigame(context: MinigameCreationContext): DuelMinigame {
-        return this.createDuelMinigame(context.server, DuelSettings(listOf()))
-    }
-
-    fun createDuelMinigame(server: MinecraftServer, settings: DuelSettings): DuelMinigame {
-        val minigame = DuelMinigame(server, settings)
+    private fun modifyDuelMinigame(minigame: DuelMinigame) {
         minigame.events.register<MinigameCloseEvent> {
             minigame.players.transferTo(this.minigame)
         }
@@ -233,10 +210,9 @@ object CasualMinigames {
         }
         this.setCasualUI(minigame)
         minigame.ui.setPlayerListDisplay(CommonUI.createSimpleTabDisplay(minigame))
-        return minigame
     }
 
-    internal fun setCasualUI(minigame: Minigame<*>) {
+    private fun setCasualUI(minigame: Minigame) {
         minigame.settings.broadcastChangesToAdmin()
         minigame.ui.setPlayerListDisplay(CommonUI.createTeamMinigameTabDisplay(minigame))
         minigame.ui.readier = ReadyChecker(
@@ -259,7 +235,7 @@ object CasualMinigames {
         this.setPauseNotification(minigame)
     }
 
-    private fun setPauseNotification(minigame: Minigame<*>) {
+    private fun setPauseNotification(minigame: Minigame) {
         minigame.events.register<MinigamePauseEvent> {
             minigame.chat.broadcastWithSound(
                 "Minigame is now paused".literal(),

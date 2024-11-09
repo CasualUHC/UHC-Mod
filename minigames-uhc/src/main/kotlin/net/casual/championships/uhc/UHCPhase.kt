@@ -72,7 +72,7 @@ enum class UHCPhase(
 
         override fun initialize(minigame: UHCMinigame) {
             // Fantasy does not save game rule data, we must always reset it.
-            minigame.setGameRules {
+            minigame.levels.setGameRules {
                 resetToDefault()
                 set(GameRules.RULE_NATURAL_REGENERATION, false)
                 set(GameRules.RULE_DOINSOMNIA, false)

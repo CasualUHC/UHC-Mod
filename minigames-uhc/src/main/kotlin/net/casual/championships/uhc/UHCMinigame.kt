@@ -9,14 +9,12 @@ import net.casual.arcade.border.tracker.MultiLevelBorderListener
 import net.casual.arcade.border.tracker.MultiLevelBorderTracker
 import net.casual.arcade.border.tracker.TrackedBorder
 import net.casual.arcade.commands.*
-import net.casual.arcade.dimensions.level.LevelPersistence
-import net.casual.arcade.dimensions.level.vanilla.VanillaDimension
-import net.casual.arcade.dimensions.level.vanilla.VanillaLikeLevelsBuilder
 import net.casual.arcade.events.BuiltInEventPhases
 import net.casual.arcade.events.block.BrewingStandBrewEvent
 import net.casual.arcade.events.level.LevelLootEvent
 import net.casual.arcade.events.player.*
 import net.casual.arcade.events.server.ServerTickEvent
+import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.During
 import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.annotation.ListenerFlags
@@ -25,8 +23,7 @@ import net.casual.arcade.minigame.events.*
 import net.casual.arcade.minigame.gamemode.ExtendedGameMode
 import net.casual.arcade.minigame.gamemode.ExtendedGameMode.Companion.extendedGameMode
 import net.casual.arcade.minigame.managers.MinigameLevelManager
-import net.casual.arcade.minigame.serialization.MinigameCreationContext
-import net.casual.arcade.minigame.serialization.SavableMinigame
+import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.stats.Stat.Companion.increment
 import net.casual.arcade.minigame.task.impl.MinigameTask
 import net.casual.arcade.minigame.utils.MinigameUtils.addEventListener
@@ -43,11 +40,7 @@ import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.ComponentUtils.withMiniShiftedDownFont
 import net.casual.arcade.utils.ItemUtils.isOf
 import net.casual.arcade.utils.JsonUtils.arrayOrDefault
-import net.casual.arcade.utils.JsonUtils.longOrDefault
-import net.casual.arcade.utils.JsonUtils.longOrNull
 import net.casual.arcade.utils.JsonUtils.obj
-import net.casual.arcade.utils.JsonUtils.objOrNull
-import net.casual.arcade.utils.JsonUtils.string
 import net.casual.arcade.utils.JsonUtils.strings
 import net.casual.arcade.utils.JsonUtils.toJsonStringArray
 import net.casual.arcade.utils.MathUtils.opposite
@@ -67,7 +60,6 @@ import net.casual.arcade.utils.PlayerUtils.sendSound
 import net.casual.arcade.utils.PlayerUtils.sendTitle
 import net.casual.arcade.utils.PlayerUtils.teleportTo
 import net.casual.arcade.utils.PlayerUtils.unboostHealth
-import net.casual.arcade.utils.ResourceUtils
 import net.casual.arcade.utils.TeamUtils.color
 import net.casual.arcade.utils.TeamUtils.getOnlineCount
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
@@ -85,8 +77,6 @@ import net.casual.championships.common.items.PlayerHeadItem
 import net.casual.championships.common.minigame.rules.Rules
 import net.casual.championships.common.minigame.rules.RulesProvider
 import net.casual.championships.common.recipes.GoldenHeadRecipe
-import net.casual.championships.common.task.GlowingBossbarTask
-import net.casual.championships.common.task.GracePeriodBossbarTask
 import net.casual.championships.common.ui.bossbar.ActiveBossbar
 import net.casual.championships.common.util.*
 import net.casual.championships.common.util.CommonUI.broadcastGame
@@ -126,9 +116,9 @@ import net.minecraft.world.level.ClipContext
 import net.minecraft.world.level.GameType
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.border.WorldBorder
-import net.minecraft.world.level.levelgen.WorldOptions
 import net.minecraft.world.phys.HitResult
 import net.minecraft.world.scores.Team
+import java.util.*
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.math.abs
@@ -136,10 +126,12 @@ import kotlin.math.atan2
 
 class UHCMinigame(
     server: MinecraftServer,
+    uuid: UUID,
     val overworld: ServerLevel,
     val nether: ServerLevel,
-    val end: ServerLevel
-): SavableMinigame<UHCMinigame>(server), MultiLevelBorderListener, RulesProvider {
+    val end: ServerLevel,
+    private val factory: UHCMinigameFactory? = null
+): Minigame(server, uuid), MultiLevelBorderListener, RulesProvider {
     private val tracker = MultiLevelBorderTracker()
     private var movingBorders = HashSet<ResourceKey<Level>>()
 
@@ -152,9 +144,6 @@ class UHCMinigame(
     override val settings = UHCSettings(this)
 
     init {
-        this.addTaskFactory(GlowingBossbarTask.cast())
-        this.addTaskFactory(GracePeriodBossbarTask.cast())
-
         this.ui.addBossbar(ActiveBossbar(this))
         this.effects.setGlowingPredicate(PlayerObserverPredicate(this::shouldObserveeGlow))
         this.effects.setInvisiblePredicate(PlayerObserverPredicate(this::shouldObserveeBeInvisible))
@@ -164,9 +153,30 @@ class UHCMinigame(
         this.levels.add(this.end)
     }
 
-    override fun initialize() {
-        super.initialize()
+    override fun phases(): Collection<UHCPhase> {
+        return entries
+    }
 
+    override fun factory(): MinigameFactory? {
+        return this.factory
+    }
+
+    override fun load(data: JsonObject) {
+        this.movingBorders = HashSet(data.arrayOrDefault("moving_borders").strings().map {
+            ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(it))
+        })
+        if (data.has("advancements")) {
+            this.uhcAdvancements.deserialize(data.obj("advancements"))
+        }
+    }
+
+    override fun save(data: JsonObject) {
+        data.add("advancements", this.uhcAdvancements.serialize())
+        data.add("moving_borders", this.movingBorders.toJsonStringArray { it.location().toString() })
+    }
+
+    @Listener
+    private fun onInitialize(event: MinigameInitializeEvent) {
         this.registerCommands()
         this.addEventListener(this.uhcAdvancements)
         this.recipes.add(GoldenHeadRecipe.INSTANCE)
@@ -174,35 +184,6 @@ class UHCMinigame(
         this.initialiseBorderTracker()
 
         this.levels.spawn = MinigameLevelManager.SpawnLocation.global(this.overworld)
-    }
-
-    override fun getPhases(): Collection<UHCPhase> {
-        return entries
-    }
-
-    override fun loadData(json: JsonObject) {
-        this.movingBorders = HashSet(json.arrayOrDefault("moving_borders").strings().map {
-            ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(it))
-        })
-        if (json.has("advancements")) {
-            this.uhcAdvancements.deserialize(json.obj("advancements"))
-        }
-    }
-
-    override fun saveData(json: JsonObject) {
-        json.add("advancements", this.uhcAdvancements.serialize())
-        json.add("moving_borders", this.movingBorders.toJsonStringArray { it.location().toString() })
-    }
-
-    override fun saveParameters(json: JsonObject) {
-        val dimensions = JsonObject()
-        dimensions.addProperty("overworld", this.overworld.dimension().location().toString())
-        dimensions.addProperty("nether", this.nether.dimension().location().toString())
-        dimensions.addProperty("end", this.end.dimension().location().toString())
-        json.add("dimensions", dimensions)
-        json.addProperty("overworld_seed", this.overworld.seed)
-        json.addProperty("nether_seed", this.nether.seed)
-        json.addProperty("end_seed", this.end.seed)
     }
 
     @Listener(during = During(before = BORDER_FINISHED_ID))
@@ -500,6 +481,24 @@ class UHCMinigame(
             } else {
                 last.modify { this.server.tickCount }
             }
+        }
+    }
+
+    @Listener
+    private fun onPlayerTeamJoin(event: PlayerTeamJoinEvent) {
+        val (player, team) = event
+        for (teammate in team.getOnlinePlayers()) {
+            this.effects.forceUpdate(teammate, player)
+            this.effects.forceUpdate(player, teammate)
+        }
+    }
+
+    @Listener
+    private fun onPlayerTeamLeave(event: PlayerTeamLeaveEvent) {
+        val (player, team) = event
+        for (teammate in team.getOnlinePlayers()) {
+            this.effects.forceUpdate(teammate, player)
+            this.effects.forceUpdate(player, teammate)
         }
     }
 
@@ -950,53 +949,5 @@ class UHCMinigame(
     companion object {
         private val FAKE_BORDER = WorldBorder()
         val ID = UHCMod.id("uhc_minigame")
-
-        fun create(context: MinigameCreationContext): UHCMinigame {
-            val parameters = context.parameters
-            val dimensions = parameters.objOrNull("dimensions")
-            val seed = parameters.longOrNull("seed") ?: WorldOptions.randomSeed()
-            val (overworld, nether, end) = if (dimensions != null) {
-                Triple(
-                    ResourceLocation.parse(dimensions.string("overworld")),
-                    ResourceLocation.parse(dimensions.string("nether")),
-                    ResourceLocation.parse(dimensions.string("end"))
-                )
-            } else {
-                Triple(
-                    ResourceUtils.random { "overworld_$it" },
-                    ResourceUtils.random { "nether_$it" },
-                    ResourceUtils.random { "end_$it" },
-                )
-            }
-            val server = context.server
-
-            val levels = VanillaLikeLevelsBuilder.build(server) {
-                set(VanillaDimension.Overworld) {
-                    dimensionKey(overworld)
-                    seed(parameters.longOrDefault("overworld_seed", seed))
-                    defaultLevelProperties()
-                    persistence(LevelPersistence.Permanent)
-                }
-                set(VanillaDimension.Nether) {
-                    dimensionKey(nether)
-                    seed(parameters.longOrDefault("nether_seed", seed))
-                    defaultLevelProperties()
-                    persistence(LevelPersistence.Permanent)
-                }
-                set(VanillaDimension.End) {
-                    dimensionKey(end)
-                    seed(parameters.longOrDefault("end_seed", seed))
-                    defaultLevelProperties()
-                    persistence(LevelPersistence.Permanent)
-                }
-            }
-
-            return UHCMinigame(
-                server,
-                levels.getOrThrow(VanillaDimension.Overworld),
-                levels.getOrThrow(VanillaDimension.Nether),
-                levels.getOrThrow(VanillaDimension.End)
-            )
-        }
     }
 }

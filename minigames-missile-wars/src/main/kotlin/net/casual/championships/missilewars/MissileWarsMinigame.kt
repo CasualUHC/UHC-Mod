@@ -1,23 +1,15 @@
 package net.casual.championships.missilewars
 
-import com.google.gson.JsonObject
+import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.phase.Phase
-import net.casual.arcade.minigame.serialization.SavableMinigame
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
+import java.util.*
 
-class MissileWarsMinigame(server: MinecraftServer): SavableMinigame<MissileWarsMinigame>(server) {
+class MissileWarsMinigame(server: MinecraftServer, uuid: UUID): Minigame(server, uuid) {
     override val id: ResourceLocation = ID
 
-    override fun getPhases(): Collection<Phase<MissileWarsMinigame>> {
-        TODO("Not yet implemented")
-    }
-
-    override fun loadData(json: JsonObject) {
-        TODO("Not yet implemented")
-    }
-
-    override fun saveData(json: JsonObject) {
+    override fun phases(): Collection<Phase<MissileWarsMinigame>> {
         TODO("Not yet implemented")
     }
 

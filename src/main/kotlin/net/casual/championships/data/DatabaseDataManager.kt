@@ -136,7 +136,7 @@ class DatabaseDataManager(
         }
     }
 
-    private fun syncPlayerAdvancements(minigame: Minigame<*>, minigamePlayer: MinigamePlayer) {
+    private fun syncPlayerAdvancements(minigame: Minigame, minigamePlayer: MinigamePlayer) {
         val advancements = minigame.data.getAdvancements(minigamePlayer.uuid)
         for (holder in advancements) {
             val minigameAdvancement = this.getOrCreateAdvancement(minigame, holder) ?: continue
@@ -147,7 +147,7 @@ class DatabaseDataManager(
         }
     }
 
-    private fun getOrCreateAdvancement(minigame: Minigame<*>, advancement: AdvancementHolder): MinigameAdvancement? {
+    private fun getOrCreateAdvancement(minigame: Minigame, advancement: AdvancementHolder): MinigameAdvancement? {
         val type = minigame.id.toString()
         val id = advancement.id.toString()
         val minigameAdvancement = MinigameAdvancement.find {
@@ -197,7 +197,7 @@ class DatabaseDataManager(
         }
     }
 
-    private fun getOrCreateMinigame(minigame: Minigame<*>): DatabaseMinigame {
+    private fun getOrCreateMinigame(minigame: Minigame): DatabaseMinigame {
         val databaseMinigame = DatabaseMinigame.findById(minigame.uuid)
         if (databaseMinigame != null) {
             return databaseMinigame

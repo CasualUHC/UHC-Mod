@@ -29,7 +29,7 @@ enum class DuelPhase(
         override fun start(minigame: DuelMinigame, previous: Phase<DuelMinigame>) {
             minigame.arena.area.replace()
 
-            minigame.setGameRules {
+            minigame.levels.setGameRules {
                 resetToDefault()
                 if (!minigame.duelSettings.naturalRegen) {
                     set(GameRules.RULE_NATURAL_REGENERATION, false)

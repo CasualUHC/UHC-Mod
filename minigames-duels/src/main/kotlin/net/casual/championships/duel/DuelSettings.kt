@@ -40,7 +40,7 @@ import net.minecraft.world.item.component.DyedItemColor
 import kotlin.enums.enumEntries
 
 class DuelSettings(
-    private val arenas: List<DuelArenasTemplate>
+    val arenas: List<DuelArenasTemplate>
 ): DisplayableSettings(CasualSettings.Defaults(Component.translatable("casual.gui.duel.settings").mini())) {
     val displayableTeams = bool {
         name = "teams"

@@ -9,7 +9,7 @@ import net.casual.championships.common.util.CommonUI
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 
-class CasualTeamReadyHandler(minigame: Minigame<*>): MinigameTeamReadyHandler(minigame) {
+class CasualTeamReadyHandler(minigame: Minigame): MinigameTeamReadyHandler(minigame) {
     override fun broadcast(message: Component) {
         this.minigame.chat.broadcast(message)
     }

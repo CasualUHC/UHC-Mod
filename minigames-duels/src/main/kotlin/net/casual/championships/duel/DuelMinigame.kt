@@ -11,6 +11,7 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.During
 import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.annotation.ListenerFlags
+import net.casual.arcade.minigame.events.MinigameInitializeEvent
 import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent
 import net.casual.arcade.minigame.events.MinigameSetPlayingEvent
 import net.casual.arcade.minigame.events.MinigameSetSpectatingEvent
@@ -56,12 +57,14 @@ import net.minecraft.world.level.GameType
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes
 import net.minecraft.world.level.storage.loot.LootParams
 import net.minecraft.world.level.storage.loot.LootTable
+import java.util.UUID
 import kotlin.random.Random
 
 class DuelMinigame(
     server: MinecraftServer,
+    uuid: UUID,
     val duelSettings: DuelSettings
-): Minigame<DuelMinigame>(server) {
+): Minigame(server, uuid) {
     override val id = ID
 
     private val modifiableBlocks = HashSet<BlockPos>()
@@ -71,11 +74,14 @@ class DuelMinigame(
     val level: ServerLevel
         get() = this.arena.area.level
 
-    override val settings = MinigameSettings(this@DuelMinigame)
+    override val settings = MinigameSettings(this)
 
-    override fun initialize() {
-        super.initialize()
+    override fun phases(): Collection<Phase<DuelMinigame>> {
+        return DuelPhase.entries
+    }
 
+    @Listener
+    private fun onInitialize(event: MinigameInitializeEvent) {
         this.settings.copyFrom(this.duelSettings)
         this.recipes.add(GoldenHeadRecipe.INSTANCE)
 
@@ -84,10 +90,6 @@ class DuelMinigame(
         }, false)
 
         this.levels.spawn = MinigameLevelManager.SpawnLocation.global(this.level, this.arena.area.getBoundingBox().center)
-    }
-
-    override fun getPhases(): Collection<Phase<DuelMinigame>> {
-        return DuelPhase.entries
     }
 
     @Listener

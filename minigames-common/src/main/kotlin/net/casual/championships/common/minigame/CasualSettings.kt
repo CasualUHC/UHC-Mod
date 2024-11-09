@@ -25,7 +25,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
 
 open class CasualSettings(
-    minigame: Minigame<*>,
+    minigame: Minigame,
     defaults: DisplayableSettingsDefaults = Defaults("Casual Minigame Settings".literal())
 ): MinigameSettings(minigame, defaults) {
     open class Defaults(title: Component): DisplayableSettingsDefaults() {

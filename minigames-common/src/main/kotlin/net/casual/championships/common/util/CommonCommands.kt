@@ -17,7 +17,7 @@ object CommonCommands {
     private val NO_TEAM = SimpleCommandExceptionType(CommonComponents.NO_TEAM)
 
     fun toggleFullbright(
-        minigame: Minigame<*>,
+        minigame: Minigame,
         context: CommandContext<CommandSourceStack>
     ): Int {
         val player = context.source.playerOrException
@@ -32,7 +32,7 @@ object CommonCommands {
     }
 
     fun toggleTeamGlow(
-        minigame: Minigame<*>,
+        minigame: Minigame,
         context: CommandContext<CommandSourceStack>
     ): Int {
         val player = context.source.playerOrException
@@ -53,7 +53,7 @@ object CommonCommands {
     }
 
     fun broadcastPositionToTeammates(
-        minigame: Minigame<*>,
+        minigame: Minigame,
         context: CommandContext<CommandSourceStack>
     ): Int {
         val player = context.source.playerOrException
@@ -77,7 +77,7 @@ object CommonCommands {
     }
 
     fun openSpectatingScreen(
-        minigame: Minigame<*>,
+        minigame: Minigame,
         context: CommandContext<CommandSourceStack>
     ): Int {
         val player = context.source.playerOrException

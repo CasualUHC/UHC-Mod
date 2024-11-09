@@ -15,7 +15,7 @@ import net.minecraft.server.level.ServerPlayer
 import java.util.*
 
 class SpectatorAndAdminTeamsElement(
-    private val minigame: Minigame<*>
+    private val minigame: Minigame
 ): UniversalElement<Optional<Component>> {
     override fun get(server: MinecraftServer): Optional<Component> {
         val teams = this.minigame.teams

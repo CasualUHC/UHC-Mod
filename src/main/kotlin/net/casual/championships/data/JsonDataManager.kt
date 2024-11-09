@@ -37,7 +37,7 @@ class JsonDataManager: DataManager {
 
     }
 
-    private fun syncMinigameData(minigame: Minigame<*>) {
+    private fun syncMinigameData(minigame: Minigame) {
         val serialized = minigame.data.toJson()
         CompletableFuture.runAsync {
             try {

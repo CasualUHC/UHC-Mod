@@ -128,17 +128,19 @@ class UHCAdvancementManager(
         during = During(before = GAME_OVER_ID)
     )
     private fun onPlayerDeath(event: PlayerDeathEvent) {
+        val (player, source) = event
+
         if (this.claimed.add(UHCRaceAdvancement.Death)) {
-            event.player.grantAdvancement(UHCAdvancements.EARLY_EXIT)
+            player.grantAdvancement(UHCAdvancements.EARLY_EXIT)
         }
 
-        if (event.source.`is`(DamageTypes.OUTSIDE_BORDER)) {
-            event.player.grantAdvancement(UHCAdvancements.SKILL_ISSUE)
-        } else if (event.source.`is`(DamageTypes.FELL_OUT_OF_WORLD)) {
-            event.player.grantAdvancement(UHCAdvancements.WELL_THAT_WAS_A_BIT_SILLY)
+        if (source.`is`(DamageTypes.OUTSIDE_BORDER)) {
+            player.grantAdvancement(UHCAdvancements.SKILL_ISSUE)
+        } else if (source.`is`(DamageTypes.FELL_OUT_OF_WORLD)) {
+            player.grantAdvancement(UHCAdvancements.WELL_THAT_WAS_A_BIT_SILLY)
         }
 
-        val killer = event.player.getKillCreditWith(event.source)
+        val killer = player.getKillCreditWith(source)
         if (killer is ServerPlayer && this.uhc.players.has(killer)) {
             if (this.claimed.add(UHCRaceAdvancement.Kill)) {
                 killer.grantAdvancement(UHCAdvancements.FIRST_BLOOD)
@@ -147,12 +149,12 @@ class UHCAdvancementManager(
                 killer.grantAdvancement(UHCAdvancements.OKAY_EZTAK)
             }
         } else if (killer is Warden) {
-            event.player.grantAdvancement(UHCAdvancements.BEAR_CARED)
+            player.grantAdvancement(UHCAdvancements.BEAR_CARED)
         } else if (killer is IronGolem) {
-            event.player.grantAdvancement(UHCAdvancements.COW_MOMENT)
+            player.grantAdvancement(UHCAdvancements.COW_MOMENT)
         }
 
-        if (event.level.dimension() == this.uhc.nether.dimension()) {
+        if (player.level().dimension() == this.uhc.nether.dimension()) {
             event.player.grantAdvancement(UHCAdvancements.WHERE_WAS_MY_PORTAL)
         }
     }

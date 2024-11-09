@@ -22,7 +22,7 @@ import java.time.Duration
 import java.util.concurrent.CompletableFuture
 
 open class CasualPlayerListEntries(
-    private val minigame: Minigame<*>
+    private val minigame: Minigame
 ): TeamListEntries() {
     override fun getTeams(server: MinecraftServer): Collection<PlayerTeam> {
         return this.minigame.teams.getAllNonSpectatorOrAdminTeams().sortedWith(NAME_ORDER)

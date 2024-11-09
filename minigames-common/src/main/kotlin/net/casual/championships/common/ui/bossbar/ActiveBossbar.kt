@@ -15,7 +15,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.BossEvent
 
 class ActiveBossbar(
-    private val owner: Minigame<*>
+    private val owner: Minigame
 ): CustomBossbar() {
     override fun getTitle(player: ServerPlayer): Component {
         val start = Component.empty()

@@ -3,19 +3,24 @@ package net.casual.championships.minigame.lobby
 import com.google.common.collect.ImmutableList
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.context.CommandContext
+import it.unimi.dsi.fastutil.ints.IntList
 import net.casual.arcade.commands.*
 import net.casual.arcade.events.player.PlayerFallEvent
 import net.casual.arcade.events.player.PlayerTeamJoinEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.minigame.annotation.Listener
+import net.casual.arcade.minigame.area.PlaceableArea
 import net.casual.arcade.minigame.chat.ChatFormatter
 import net.casual.arcade.minigame.events.*
 import net.casual.arcade.minigame.lobby.LobbyMinigame
+import net.casual.arcade.minigame.lobby.LobbyPhase
 import net.casual.arcade.minigame.ready.ReadyChecker
+import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.settings.MinigameSettings
+import net.casual.arcade.minigame.template.location.LocationTemplate
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
 import net.casual.arcade.resources.utils.ResourcePackUtils.afterPacksLoad
-import net.casual.arcade.scheduler.task.impl.PlayerTask
+import net.casual.arcade.scheduler.MinecraftScheduler
 import net.casual.arcade.utils.ComponentUtils.command
 import net.casual.arcade.utils.ComponentUtils.green
 import net.casual.arcade.utils.ComponentUtils.lime
@@ -29,20 +34,26 @@ import net.casual.arcade.utils.PlayerUtils.sendTitle
 import net.casual.arcade.utils.PlayerUtils.setTitleAnimation
 import net.casual.arcade.utils.PlayerUtils.teleportTo
 import net.casual.arcade.utils.TimeUtils.Seconds
+import net.casual.arcade.utils.TimeUtils.Ticks
+import net.casual.arcade.utils.impl.Location
 import net.casual.arcade.utils.time.MinecraftTimeDuration
+import net.casual.arcade.visuals.firework.VirtualFirework
 import net.casual.arcade.visuals.tab.PlayerListDisplay
 import net.casual.championships.CasualMod
 import net.casual.championships.common.event.MinesweeperWonEvent
 import net.casual.championships.common.minigame.CasualSettings
 import net.casual.championships.common.minigame.rules.RulesProvider
+import net.casual.championships.common.ui.bossbar.LobbyBossbar
 import net.casual.championships.common.util.CommonComponents
 import net.casual.championships.common.util.CommonSounds
 import net.casual.championships.common.util.CommonUI
 import net.casual.championships.common.util.CommonUI.broadcastGame
 import net.casual.championships.common.util.CommonUI.broadcastWithSound
 import net.casual.championships.duel.DuelMinigame
+import net.casual.championships.duel.DuelMinigameFactory
 import net.casual.championships.duel.DuelRequester
 import net.casual.championships.duel.DuelSettings
+import net.casual.championships.duel.arena.DuelArenasTemplate
 import net.casual.championships.duel.ui.DuelConfigurationGui
 import net.casual.championships.minigame.CasualMinigames
 import net.minecraft.commands.CommandSourceStack
@@ -53,17 +64,25 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundSource
+import net.minecraft.world.item.component.FireworkExplosion.Shape
 import net.minecraft.world.level.GameType
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.Team
 import java.util.*
+import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 
 class CasualLobbyMinigame(
     server: MinecraftServer,
-    private val casualLobby: CasualLobby
-): LobbyMinigame(server, casualLobby) {
+    uuid: UUID,
+    area: PlaceableArea,
+    spawn: Location,
+    private val podiumTemplate: LocationTemplate,
+    private val podiumViewTemplate: LocationTemplate,
+    private val fireworksLocations: List<LocationTemplate>,
+    private val duelArenaTemplates: List<DuelArenasTemplate>
+): LobbyMinigame(server, uuid, area, spawn) {
     override val settings: MinigameSettings = CasualSettings(this)
 
     private val duels = ArrayList<DuelMinigame>()
@@ -94,9 +113,8 @@ class CasualLobbyMinigame(
         return teams
     }
 
-    override fun initialize() {
-        super.initialize()
-
+    @Listener
+    private fun onInitialize(event: MinigameInitializeEvent) {
         this.registerCommands()
 
         val display = PlayerListDisplay(CasualLobbyPlayerListEntries(this))
@@ -104,11 +122,13 @@ class CasualLobbyMinigame(
         this.ui.setPlayerListDisplay(display)
 
         this.advancements.addAll(LobbyAdvancements)
+
+        this.setBossbar(LobbyBossbar())
     }
 
     @Listener
     private fun onMinigameAddNewPlayer(event: MinigameAddNewPlayerEvent) {
-        this.casualLobby.forceTeleportToSpawn(event.player)
+        this.teleportToSpawn(event.player)
     }
 
     @Listener
@@ -141,9 +161,9 @@ class CasualLobbyMinigame(
             player.afterPacksLoad {
                 this.hasSeenFireworks.add(player.uuid)
                 player.sendSound(CommonSounds.GAME_WON)
-                this.scheduler.schedule(10.Seconds, PlayerTask(player) {
-                    this.casualLobby.spawnFireworksFor(player, this.scheduler)
-                })
+                this.scheduler.schedule(10.Seconds) {
+                    this.spawnFireworkDisplays(player, this.scheduler)
+                }
             }
         }
     }
@@ -175,7 +195,7 @@ class CasualLobbyMinigame(
     }
 
     @Listener
-    private fun onPhaseSet(event: MinigameSetPhaseEvent<LobbyMinigame>) {
+    private fun onPhaseSet(event: MinigameSetPhaseEvent) {
         if (event.phase >= LobbyPhase.Readying) {
             for (duel in ImmutableList.copyOf(this.duels)) {
                 duel.close()
@@ -185,7 +205,7 @@ class CasualLobbyMinigame(
 
     @Listener
     private fun onPlayerFall(event: PlayerFallEvent) {
-        if (!AABB.of(this.lobby.area.getBoundingBox()).intersects(event.player.boundingBox)) {
+        if (!AABB.of(this.area.getBoundingBox()).intersects(event.player.boundingBox)) {
             event.player.grantAdvancement(LobbyAdvancements.UH_OH)
         }
     }
@@ -203,11 +223,11 @@ class CasualLobbyMinigame(
     }
 
     private fun resetLobbyTime() {
-        this.casualLobby.area.level.dayTime = 12_500L
+        this.area.level.dayTime = 12_500L
     }
 
     override fun startNextMinigame() {
-        val minigame = this.nextMinigame
+        val minigame = this.next
         if (minigame !is RulesProvider) {
             super.startNextMinigame()
             return
@@ -234,6 +254,17 @@ class CasualLobbyMinigame(
         }.runIfCancelled()
     }
 
+    override fun teleportToSpawn(player: ServerPlayer) {
+        val location = if (CasualMinigames.isWinner(player)) {
+            this.podiumTemplate.get(this.area.level)
+        } else if (CasualMinigames.hasWinner()) {
+            this.podiumViewTemplate.get(this.area.level)
+        } else {
+            this.spawn
+        }
+        player.teleportTo(location)
+    }
+
     private fun registerCommands() {
         this.commands.register(CommandTree.buildLiteral("duel") {
             literal("start") {
@@ -256,7 +287,7 @@ class CasualLobbyMinigame(
             return context.source.fail(Component.translatable("casual.duel.cannotDuelNow"))
         }
         val player = context.source.playerOrException
-        val settings = DuelSettings(this.casualLobby.duelArenaTemplates)
+        val settings = DuelSettings(this.duelArenaTemplates)
         val gui = DuelConfigurationGui(player, settings, this.players::all, this::requestDuelWith)
         gui.open()
         return Command.SINGLE_SUCCESS
@@ -341,7 +372,7 @@ class CasualLobbyMinigame(
             return false
         }
 
-        val duel = CasualMinigames.createDuelMinigame(initiator.server, settings)
+        val duel = DuelMinigameFactory(settings).create(MinigameCreationContext(initiator.server))
         this.duels.add(duel)
         duel.events.register<MinigameCloseEvent> { this.duels.remove(duel) }
 
@@ -380,7 +411,42 @@ class CasualLobbyMinigame(
         return true
     }
 
+    private fun spawnFireworkDisplays(player: ServerPlayer, scheduler: MinecraftScheduler) {
+        scheduler.scheduleInLoop(MinecraftTimeDuration.ZERO, 10.Ticks, 10.Seconds) {
+            if (player.level() === this.area.level) {
+                this.spawnFireworkDisplay(player)
+            }
+        }
+    }
+
+    private fun spawnFireworkDisplay(player: ServerPlayer) {
+        for (template in this.fireworksLocations) {
+            val firingLocation = template.get(this.area.level)
+            val firework = VirtualFirework.build {
+                location = firingLocation
+                duration = Random.nextInt(20, 30).Ticks
+
+                SHAPES.asSequence().shuffled().take(Random.nextInt(1, 4)).forEach { shape ->
+                    val index = Random.nextInt(PRIMARY.size)
+                    explosion {
+                        shape(shape)
+                        addPrimaryColours(PRIMARY.getInt(index))
+                        addFadeColours(FADE.getInt(index))
+                        trail()
+                        twinkle()
+                    }
+                }
+            }
+            firework.sendTo(player)
+        }
+    }
+
     companion object {
+        private val PRIMARY = IntList.of(0xea3323, 0xff8b00, 0xfebb26, 0x1eb253, 0x017cf3, 0x9c78fe)
+        private val FADE = IntList.of(0xde324c, 0xf4895f, 0xf8e16f, 0x95cf92, 0x369acc, 0x9656a2)
+
+        private val SHAPES = listOf(Shape.LARGE_BALL, Shape.STAR, Shape.BURST)
+
         val ID = CasualMod.id("lobby")
     }
 }
