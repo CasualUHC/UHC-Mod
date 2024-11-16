@@ -12,7 +12,7 @@ plugins {
 
 allprojects {
     group = "net.casual"
-    version = "1.1.0"
+    version = "1.1.1"
 
     apply(plugin = "fabric-loom")
     apply(plugin = "org.jetbrains.kotlin.jvm")
@@ -25,7 +25,8 @@ allprojects {
         maven("https://maven.parchmentmc.org/")
         maven("https://jitpack.io")
         maven("https://maven.nucleoid.xyz")
-        maven("https://repo.fruxz.dev/releases/")
+        maven("https://api.modrinth.com/maven")
+        maven("https://maven.andante.dev/releases/")
         mavenCentral()
     }
 
@@ -50,7 +51,6 @@ allprojects {
         modImplementation(libs.fabric.kotlin)
 
         modImplementation(libs.arcade)
-        // modCompileOnly(libs.server.replay)
 
         modImplementation(libs.map.canvas)
     }
@@ -93,8 +93,8 @@ subprojects {
 
 dependencies {
     include(libs.arcade)
-    include(libs.server.replay)
     include(libs.map.canvas)
+    include(modImplementation(libs.server.replay.get())!!)
 
     for (subproject in project.subprojects) {
         implementation(project(path = subproject.path, configuration = "namedElements"))

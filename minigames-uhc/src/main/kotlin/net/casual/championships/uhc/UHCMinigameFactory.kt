@@ -74,10 +74,14 @@ open class UHCMinigameFactory(
         override val ID: ResourceLocation
             get() = UHCMinigame.ID
 
-        override val CODEC: MapCodec<out UHCMinigameFactory> = Codec.simpleMap(
-            VanillaDimension.CODEC,
-            DimensionWithSeed.CODEC,
-            StringRepresentable.keys(VanillaDimension.entries.toTypedArray())
-        ).xmap(::UHCMinigameFactory, UHCMinigameFactory::dimensions)
+        override val CODEC: MapCodec<out UHCMinigameFactory> = RecordCodecBuilder.mapCodec { instance ->
+            instance.group(
+                Codec.simpleMap(
+                    VanillaDimension.CODEC,
+                    DimensionWithSeed.CODEC,
+                    StringRepresentable.keys(VanillaDimension.entries.toTypedArray())
+                ).fieldOf("dimensions").forGetter(UHCMinigameFactory::dimensions)
+            ).apply(instance, ::UHCMinigameFactory)
+        }
     }
 }

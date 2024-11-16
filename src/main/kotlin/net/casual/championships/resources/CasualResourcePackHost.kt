@@ -1,7 +1,9 @@
 package net.casual.championships.resources
 
 import com.google.common.collect.HashBiMap
+import com.google.common.hash.Hashing
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
+import me.senseiwells.replay.config.ReplayConfig
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerStoppingEvent
 import net.casual.arcade.host.HostedPack
@@ -19,6 +21,8 @@ import net.casual.championships.uhc.UHCMod
 import net.casual.championships.util.CasualConfig
 import net.minecraft.ChatFormatting
 import net.minecraft.world.scores.PlayerTeam
+import java.io.IOException
+import java.nio.charset.StandardCharsets
 import java.util.concurrent.CompletableFuture
 
 object CasualResourcePackHost {
@@ -99,6 +103,16 @@ object CasualResourcePackHost {
     }
 
     private fun host(creator: NamedResourcePackCreator): HostedPackRef {
-        return this.host.addPack(this.generated, creator)
+        val ref = this.host.addPack(this.generated, creator)
+        ref.future.thenApply { pack ->
+            try {
+                @Suppress("DEPRECATION")
+                val pathHash = Hashing.sha1().hashString(pack.url, StandardCharsets.UTF_8).toString()
+                creator.getCreator().build(ReplayConfig.root.resolve("packs").resolve(pathHash))
+            } catch (e: IOException) {
+                CasualMod.logger.error("Failed to cache pack for replays", e)
+            }
+        }
+        return ref
     }
 }

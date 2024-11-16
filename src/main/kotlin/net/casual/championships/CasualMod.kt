@@ -1,6 +1,9 @@
 package net.casual.championships
 
 import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.scheduler.task.utils.TaskRegisties
+import net.casual.championships.common.task.GlowingBossbarTask
+import net.casual.championships.common.task.GracePeriodBossbarTask
 import net.casual.championships.events.CasualConfigReloaded
 import net.casual.championships.minigame.CasualMinigames
 import net.casual.championships.resources.CasualResourcePackHost
@@ -9,6 +12,7 @@ import net.casual.championships.util.CasualRegistration
 import net.fabricmc.api.DedicatedServerModInitializer
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.ModContainer
+import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceLocation
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

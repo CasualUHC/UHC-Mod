@@ -24,6 +24,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSetting
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.scores.PlayerTeam
+import kotlin.math.max
 import kotlin.math.min
 
 object UHCSpreadTeleporter: ShapedTeleporter() {
@@ -108,7 +109,7 @@ object UHCSpreadTeleporter: ShapedTeleporter() {
             }
             val pair = this.level.findClosestBiome3d(
                 { holder -> !holder.isOceanOrRiver() },
-                containing, this.delta.toInt(), min((this.delta / 10).toInt(), 32), this.level.height
+                containing, this.delta.toInt(), max((this.delta / 10).toInt(), 32), this.level.height
             )
             if (pair == null || !this.level.isInWorldBounds(pair.first)) {
                 // We have no other option...

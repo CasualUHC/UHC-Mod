@@ -4,7 +4,9 @@ import eu.pb4.polymer.core.api.item.PolymerItem
 import net.casual.championships.common.util.CommonComponents
 import net.minecraft.ChatFormatting
 import net.minecraft.core.component.DataComponents
+import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
@@ -61,6 +63,11 @@ abstract class HeadItem(properties: Properties): BlockItem(Blocks.PLAYER_HEAD, p
 
     override fun getPolymerItem(itemStack: ItemStack, context: PacketContext): Item {
         return Items.PLAYER_HEAD
+    }
+
+    override fun getPolymerItemModel(stack: ItemStack, context: PacketContext?): ResourceLocation {
+        // TODO: Why this?
+        return BuiltInRegistries.ITEM.getKey(Items.PLAYER_HEAD)
     }
 
     override fun getPolymerItemStack(

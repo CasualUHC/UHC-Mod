@@ -185,7 +185,7 @@ object CasualMinigames {
         PerformanceUtils.disableEntityAI(minigame)
         setCasualUI(minigame)
 
-        minigame.resources.addResources(
+        minigame.resources.add(
             MinigameResources.of(CasualResourcePackHost.uhc.toPackInfo(!CasualMod.config.dev))
         )
 
@@ -212,7 +212,7 @@ object CasualMinigames {
         minigame.ui.setPlayerListDisplay(CommonUI.createSimpleTabDisplay(minigame))
     }
 
-    private fun setCasualUI(minigame: Minigame) {
+    internal fun setCasualUI(minigame: Minigame) {
         minigame.settings.broadcastChangesToAdmin()
         minigame.ui.setPlayerListDisplay(CommonUI.createTeamMinigameTabDisplay(minigame))
         minigame.ui.readier = ReadyChecker(

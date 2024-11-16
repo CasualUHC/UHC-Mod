@@ -16,6 +16,7 @@ import net.casual.arcade.utils.codec.CodecProvider
 import net.casual.arcade.utils.encodedOptionalFieldOf
 import net.casual.championships.CasualMod
 import net.casual.championships.duel.arena.DuelArenasTemplate
+import net.casual.championships.minigame.CasualMinigames
 import net.casual.championships.resources.CasualResourcePackHost
 import net.minecraft.core.registries.Registries
 import net.minecraft.resources.ResourceKey
@@ -56,8 +57,9 @@ class CasualLobbyMinigameFactory(
             this.fireworkLocations,
             this.duelArenas
         )
+        CasualMinigames.setCasualUI(minigame)
         // TODO:
-        minigame.resources.addResources(object: MinigameResources {
+        minigame.resources.add(object: MinigameResources {
             override fun getPacks(): Collection<PackInfo> {
                 @Suppress("DEPRECATION")
                 return packs.mapNotNull { pack ->
@@ -85,7 +87,7 @@ class CasualLobbyMinigameFactory(
                 LocationTemplate.CODEC.fieldOf("podium_view").forGetter(CasualLobbyMinigameFactory::podiumView),
                 LocationTemplate.CODEC.listOf().fieldOf("firework_locations").forGetter(CasualLobbyMinigameFactory::fireworkLocations),
                 DuelArenasTemplate.CODEC.listOf().encodedOptionalFieldOf("duel_arenas", listOf()).forGetter(CasualLobbyMinigameFactory::duelArenas),
-                ResourceKey.codec(Registries.BIOME).encodedOptionalFieldOf("lobby_biome", Biomes.THE_VOID).forGetter(CasualLobbyMinigameFactory::biome),
+                ResourceKey.codec(Registries.BIOME).encodedOptionalFieldOf("biome", Biomes.THE_VOID).forGetter(CasualLobbyMinigameFactory::biome),
                 Codec.STRING.listOf().encodedOptionalFieldOf("packs", listOf()).forGetter(CasualLobbyMinigameFactory::packs)
             ).apply(instance, ::CasualLobbyMinigameFactory)
         }

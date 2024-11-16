@@ -54,8 +54,7 @@ class CasualChampionshipsTemplate(
                 Codec.STRING.listOf().fieldOf("operators").forGetter(SimpleMinigamesTemplate::operators),
                 MinigameFactory.CODEC.listOf().fieldOf("minigames").forGetter(SimpleMinigamesTemplate::minigames),
                 Codec.BOOL.fieldOf("repeat").forGetter(SimpleMinigamesTemplate::repeat),
-                Codec.STRING.listOf().encodedOptionalFieldOf("additional_packs", listOf())
-                    .forGetter(CasualChampionshipsTemplate::additionalPacks)
+                Codec.STRING.listOf().encodedOptionalFieldOf("additional_packs", listOf()).forGetter(CasualChampionshipsTemplate::additionalPacks)
             ).apply(instance, ::CasualChampionshipsTemplate)
         }
     }
