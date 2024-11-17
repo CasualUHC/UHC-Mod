@@ -5,6 +5,7 @@ import com.mojang.brigadier.Command
 import com.mojang.brigadier.arguments.BoolArgumentType
 import com.mojang.brigadier.context.CommandContext
 import eu.pb4.sgui.api.GuiHelpers
+import me.senseiwells.replay.player.PlayerRecorders
 import net.casual.arcade.border.tracker.MultiLevelBorderListener
 import net.casual.arcade.border.tracker.MultiLevelBorderTracker
 import net.casual.arcade.border.tracker.TrackedBorder
@@ -296,9 +297,9 @@ class UHCMinigame(
     private fun onPlayerDeath(event: PlayerDeathEvent) {
         val (player, source) = event
 
-        // GlobalTickedScheduler.schedule(1.Seconds) {
-        //     PlayerRecorders.get(player)?.stop()
-        // }
+        GlobalTickedScheduler.schedule(1.Seconds) {
+            PlayerRecorders.get(player)?.stop()
+        }
 
         this.onEliminated(player, player.getKillCreditWith(source))
     }
@@ -328,7 +329,7 @@ class UHCMinigame(
         player.resetHunger()
         player.resetExperience()
         player.clearPlayerInventory()
-        // PlayerRecorders.get(player)?.stop()
+        PlayerRecorders.get(player)?.stop()
     }
 
     @Listener
@@ -344,6 +345,13 @@ class UHCMinigame(
         val (player) = event
         if (player.isSpectator) {
             event.cancel()
+        }
+    }
+
+    @Listener
+    private fun onPlayerAdvancement(event: PlayerAdvancementEvent) {
+        if (event.player.isSpectator) {
+            event.reward = false
         }
     }
 
@@ -439,9 +447,9 @@ class UHCMinigame(
         val player = event.player
         this.mapRenderer.stopWatching(player)
 
-        // if (!PlayerRecorders.has(player) && this.settings.replay) {
-        //     PlayerRecorders.create(player).start()
-        // }
+        if (!PlayerRecorders.has(player) && this.settings.replay) {
+            PlayerRecorders.create(player).start()
+        }
     }
 
     @Listener
@@ -789,6 +797,9 @@ class UHCMinigame(
                 append(ComponentUtils.space(127))
                 append(ComponentUtils.space(shift * 6))
                 append(ComponentUtils.negativeWidthOf(mode.name))
+                append(ComponentUtils.space(-11))
+                append(CommonComponents.Hud.EPIC_CHAT_ICON_M54)
+                append(ComponentUtils.space(1))
                 append(Component.empty().append(mode.name).withMiniShiftedDownFont(63))
 
                 append(ComponentUtils.space(190))

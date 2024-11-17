@@ -37,6 +37,7 @@ import net.casual.arcade.utils.toSmallCaps
 import net.casual.championships.CasualMod
 import net.casual.championships.commands.CasualCommand
 import net.casual.championships.commands.MinesweeperCommand
+import net.casual.championships.commands.ViewCommand
 import net.casual.championships.common.ui.CasualCountdown
 import net.casual.championships.common.ui.CasualTeamReadyHandler
 import net.casual.championships.common.util.CommonSounds
@@ -118,7 +119,7 @@ object CasualMinigames {
         CasualLobbyMinigameFactory.register(MinigameRegistries.MINIGAME_FACTORY)
 
         GlobalEventHandler.register<ServerRegisterCommandEvent> { event ->
-            event.register(MinesweeperCommand, CasualCommand)
+            event.register(MinesweeperCommand, CasualCommand, ViewCommand)
         }
 
         GlobalEventHandler.register<PlayerRequestLoginEvent> { event ->
@@ -150,6 +151,9 @@ object CasualMinigames {
             this.reloadTeams(it.server)
         }
 
+        GlobalEventHandler.register<PlayerJoinEvent>(phase = PlayerJoinEvent.PHASE_INITIALIZED) {
+            it.delayJoinMessage = true
+        }
         GlobalEventHandler.register<PlayerJoinEvent> {
             val player = it.player
             this.getMinigames().addPlayer(player)

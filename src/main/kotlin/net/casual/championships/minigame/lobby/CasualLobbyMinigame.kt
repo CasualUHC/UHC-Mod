@@ -143,10 +143,6 @@ class CasualLobbyMinigame(
 
         if (!this.players.isAdmin(player)) {
             player.setGameMode(GameType.ADVENTURE)
-        } else if (CasualMod.config.dev) {
-            player.sendSystemMessage(Component.literal("Minigames are in dev mode!").red())
-        } else {
-            player.sendSystemMessage(Component.literal("Minigames are NOT in dev mode!").red())
         }
 
         player.grantAdvancement(LobbyAdvancements.ROOT)
@@ -165,6 +161,16 @@ class CasualLobbyMinigame(
                     this.spawnFireworkDisplays(player, this.scheduler)
                 }
             }
+        }
+    }
+
+    @Listener
+    private fun onMinigameAddAdmin(event: MinigameAddAdminEvent) {
+        val player = event.player
+        if (CasualMod.config.dev) {
+            player.sendSystemMessage(Component.literal("Minigames are in dev mode!").red())
+        } else {
+            player.sendSystemMessage(Component.literal("Minigames are NOT in dev mode!").red())
         }
     }
 

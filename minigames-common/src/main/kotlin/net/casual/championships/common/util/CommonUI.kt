@@ -21,10 +21,12 @@ import net.casual.arcade.visuals.nametag.PlayerNameTag
 import net.casual.arcade.visuals.predicate.EntityObserverPredicate
 import net.casual.arcade.visuals.predicate.PlayerObserverPredicate
 import net.casual.arcade.visuals.predicate.PlayerObserverPredicate.Companion.toPlayer
+import net.casual.arcade.visuals.screen.PlayerInventoryViewGui
 import net.casual.arcade.visuals.sidebar.Sidebar
 import net.casual.arcade.visuals.sidebar.SidebarComponent
 import net.casual.arcade.visuals.tab.PlayerListDisplay
 import net.casual.championships.common.items.DisplayItems
+import net.casual.championships.common.ui.CasualPlayerInventoryViewGui
 import net.casual.championships.common.ui.elements.SpectatorAndAdminTeamsElement
 import net.casual.championships.common.ui.elements.TeammateElement
 import net.casual.championships.common.ui.game.TeamSelectorGui
@@ -188,5 +190,9 @@ object CommonUI {
             TeamSelectorGui.Selection(it, flag)
         }
         return TeamSelectorGui(player, selections)
+    }
+
+    fun createPlayerInventoryViewGui(observee: ServerPlayer, observer: ServerPlayer): PlayerInventoryViewGui {
+        return CasualPlayerInventoryViewGui(observee, observer)
     }
 }
