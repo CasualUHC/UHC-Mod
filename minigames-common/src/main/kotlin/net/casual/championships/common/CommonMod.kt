@@ -32,7 +32,7 @@ object CommonMod: ModInitializer {
     val logger: Logger = LoggerFactory.getLogger("CasualCommon")
 
     val COMMON_PACK = NamedResourcePackCreator.named("common") {
-        addAssetSource(container.findPath("packs/common").get())
+        addAssetSource(MOD_ID)
         addLangsFromData(MOD_ID)
         addLangsFrom("minecraft", container.findPath("data/minecraft/lang").get())
         addFont(CommonComponents.Hud)
@@ -40,12 +40,8 @@ object CommonMod: ModInitializer {
         addFont(CommonComponents.Text)
         addFont(CommonComponents.Border)
         addSounds(CommonSounds)
+        addMissingItemModels(MOD_ID)
         packDescription = "Common resources used in CasualChampionships".literal()
-    }
-
-    val CUSTOM_MODEL_PACK = NamedResourcePackCreator.named("common_models") {
-        addAssetSource(container.findPath("packs/models").get())
-        addMissingItemModels(MOD_ID, container.findPath("packs/common").get())
     }
 
     val COMMON_PACKS = listOf(
@@ -58,7 +54,7 @@ object CommonMod: ModInitializer {
         ArcadeResourcePacks.HIDE_PLAYER_LIST_PING_PACK,
         ArcadeResourcePacks.ACTION_BAR_FONT_PACK,
         ArcadeResourcePacks.MINI_ACTION_BAR_FONT_PACK,
-        CUSTOM_MODEL_PACK,
+        ArcadeResourcePacks.ARCADE_LANG_PACK,
         COMMON_PACK
     )
 

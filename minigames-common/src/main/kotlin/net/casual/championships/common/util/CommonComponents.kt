@@ -175,6 +175,8 @@ object CommonComponents {
         val UNAVAILABLE by bitmap(at("hud/cross.png"), 7, 7)
         val KILLS_COUNT by bitmap(at("hud/kills.png"), 8, 8)
         val PLAYER_COUNT by bitmap(at("hud/players.png"), 8, 8)
+        val EPIC_CHAT_ICON by bitmap(at("hud/epic_chat_icon.png"), 7, 7)
+        val EPIC_CHAT_ICON_M54 by bitmap(at("hud/epic_chat_icon.png"), -56, 7)
     }
 
     object Text: FontResources(CommonMod.id("text_font")) {
