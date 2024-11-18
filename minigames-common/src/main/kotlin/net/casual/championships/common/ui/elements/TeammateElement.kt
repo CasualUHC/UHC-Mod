@@ -16,10 +16,14 @@ import net.minecraft.network.chat.MutableComponent
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.PlayerTeam
 
-class TeammateElement(private val index: Int, private val buffer: Component): PlayerSpecificElement<SidebarComponent> {
+class TeammateElement(
+    private val index: Int,
+    private val buffer: Component,
+    private val unavailable: Component
+): PlayerSpecificElement<SidebarComponent> {
     private val none = SidebarComponent.withCustomScore(
         Component.empty().append(this.buffer).append(" - "),
-        CommonComponents.Hud.UNAVAILABLE.append(this.buffer)
+        Component.empty().append(this.unavailable).append(this.buffer)
     )
 
     override fun get(player: ServerPlayer): SidebarComponent {
@@ -49,7 +53,7 @@ class TeammateElement(private val index: Int, private val buffer: Component): Pl
                 val health = " %04.1f".format(teammate.health / 2.0)
                 health.literal().mini().append(ComponentUtils.space(1)).append(CommonComponents.Hud.HARDCORE_HEART)
             } else {
-                CommonComponents.Hud.UNAVAILABLE
+                Component.empty().append(this.unavailable)
             }
         } else {
             CommonComponents.Hud.NO_CONNECTION

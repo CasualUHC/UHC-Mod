@@ -91,12 +91,13 @@ object CommonUI {
         )
     }
 
-    fun addTeammates(sidebar: Sidebar, size: Int): Sidebar {
+    fun addTeammates(sidebar: Sidebar, size: Int, isGame: Boolean = true): Sidebar {
         val buffer = ComponentUtils.space()
+        val unavailable = if (isGame) CommonComponents.Hud.UNAVAILABLE else Component.empty()
         val teammates = Component.empty().append(buffer).append(CommonComponents.TEAMMATES.mini())
         sidebar.addRow(SidebarElements.withNoScore(teammates))
         for (i in 0 until size) {
-            sidebar.addRow(TeammateElement(i, buffer))
+            sidebar.addRow(TeammateElement(i, buffer, unavailable))
         }
         return sidebar
     }

@@ -33,6 +33,7 @@ import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.utils.ComponentUtils
 import net.casual.arcade.utils.ComponentUtils.bold
 import net.casual.arcade.utils.ComponentUtils.color
+import net.casual.arcade.utils.ComponentUtils.green
 import net.casual.arcade.utils.ComponentUtils.join
 import net.casual.arcade.utils.ComponentUtils.lime
 import net.casual.arcade.utils.ComponentUtils.literal
@@ -68,9 +69,14 @@ import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.impl.Location
 import net.casual.arcade.utils.impl.Sound
+import net.casual.arcade.visuals.elements.ComponentElements
+import net.casual.arcade.visuals.elements.SidebarElements
+import net.casual.arcade.visuals.elements.UniversalElement
 import net.casual.arcade.visuals.predicate.PlayerObserverPredicate
 import net.casual.arcade.visuals.shapes.ArrowShape
 import net.casual.arcade.visuals.shapes.ShapePoints.Companion.drawAsParticlesFor
+import net.casual.arcade.visuals.sidebar.Sidebar
+import net.casual.arcade.visuals.sidebar.SidebarComponent
 import net.casual.championships.common.event.TippedArrowTradeOfferEvent
 import net.casual.championships.common.event.border.BorderEntityPortalEntryPointEvent
 import net.casual.championships.common.event.border.BorderPortalWithinBoundsEvent
@@ -79,6 +85,8 @@ import net.casual.championships.common.minigame.rules.Rules
 import net.casual.championships.common.minigame.rules.RulesProvider
 import net.casual.championships.common.recipes.GoldenHeadRecipe
 import net.casual.championships.common.ui.bossbar.ActiveBossbar
+import net.casual.championships.common.ui.elements.MobcapElement
+import net.casual.championships.common.ui.elements.PerformanceElement
 import net.casual.championships.common.util.*
 import net.casual.championships.common.util.CommonUI.broadcastGame
 import net.casual.championships.common.util.CommonUI.broadcastInfo
@@ -131,10 +139,14 @@ class UHCMinigame(
     val overworld: ServerLevel,
     val nether: ServerLevel,
     val end: ServerLevel,
+    private val teamSize: Int = 5,
     private val factory: UHCMinigameFactory? = null
 ): Minigame(server, uuid), MultiLevelBorderListener, RulesProvider {
     private val tracker = MultiLevelBorderTracker()
     private var movingBorders = HashSet<ResourceKey<Level>>()
+
+    private val playerSidebar = Sidebar(ComponentElements.of(UHCComponents.Bitmap.TITLE))
+    private val adminSidebar = Sidebar(ComponentElements.of(UHCComponents.Bitmap.TITLE))
 
     override val id = ID
 
@@ -185,11 +197,31 @@ class UHCMinigame(
         this.initialiseBorderTracker()
 
         this.levels.spawn = MinigameLevelManager.SpawnLocation.global(this.overworld)
+
+        CommonUI.addTeammates(this.playerSidebar, this.teamSize)
+        this.playerSidebar.addRow(SidebarElements.empty())
+        CommonUI.addBorderDistanceAndRadius(this.playerSidebar)
+        this.playerSidebar.addRow(SidebarElements.empty())
+
+        this.adminSidebar.addRow(PerformanceElement.cached())
+        this.adminSidebar.addRow(SidebarElements.empty())
+        this.adminSidebar.addRow(UniversalElement.cached {
+            SidebarComponent.withCustomScore(
+                "  Phase:".literal().mini(),
+                this.phase.id.literal().append("  ").green().mini()
+            )
+        })
+        this.adminSidebar.addRow(SidebarElements.empty())
+        this.adminSidebar.addRow(SidebarElements.withNoScore(" Mobcaps:".literal().mini()))
+        this.adminSidebar.addRow(MobcapElement.cached())
+        this.adminSidebar.addRow(SidebarElements.empty())
+        CommonUI.addBorderDistanceAndRadius(this.adminSidebar)
+        this.adminSidebar.addRow(SidebarElements.empty())
     }
 
     @Listener(during = During(before = BORDER_FINISHED_ID))
     private fun onPause(event: MinigamePauseEvent) {
-        for ((border, level) in tracker.getAllTracking()) {
+        for ((border, level) in this.tracker.getAllTracking()) {
             if (this.movingBorders.contains(level.dimension())) {
                 this.moveWorldBorder(border, border.size)
             }
@@ -198,7 +230,7 @@ class UHCMinigame(
 
     @Listener(during = During(before = BORDER_FINISHED_ID))
     private fun onUnpause(event: MinigameUnpauseEvent) {
-        for ((border, level) in tracker.getAllTracking()) {
+        for ((border, level) in this.tracker.getAllTracking()) {
             if (this.movingBorders.contains(level.dimension())) {
                 this.moveWorldBorder(border, level, this.settings.borderStage, UHCBorderSize.End)
             }
@@ -263,6 +295,9 @@ class UHCMinigame(
         this.mapRenderer.update(this.overworld)
         this.mapRenderer.update(this.nether)
         this.mapRenderer.update(this.end)
+
+        this.adminSidebar.tick(event.server)
+        this.playerSidebar.tick(event.server)
     }
 
     @Listener(during = During(before = GAME_OVER_ID))
@@ -392,9 +427,24 @@ class UHCMinigame(
     }
 
     @Listener
+    private fun onLoadPlaying(event: MinigameLoadPlayingEvent) {
+        val player = event.player
+        this.mapRenderer.stopWatching(player)
+
+        if (!PlayerRecorders.has(player) && this.settings.replay) {
+            PlayerRecorders.create(player).start()
+        }
+
+        this.playerSidebar.addPlayer(player)
+    }
+
+    @Listener
     private fun onMinigameRemovePlayer(event: MinigameRemovePlayerEvent) {
         val player = event.player
         player.isInvisible = false
+
+        this.playerSidebar.removePlayer(player)
+        this.adminSidebar.removePlayer(player)
     }
 
     @Listener
@@ -443,16 +493,6 @@ class UHCMinigame(
     }
 
     @Listener
-    private fun onLoadPlaying(event: MinigameLoadPlayingEvent) {
-        val player = event.player
-        this.mapRenderer.stopWatching(player)
-
-        if (!PlayerRecorders.has(player) && this.settings.replay) {
-            PlayerRecorders.create(player).start()
-        }
-    }
-
-    @Listener
     private fun onSetSpectating(event: MinigameSetSpectatingEvent) {
         val (_, player) = event
         player.extendedGameMode = ExtendedGameMode.AdventureSpectator
@@ -472,7 +512,27 @@ class UHCMinigame(
 
     @Listener
     private fun onLoadSpectating(event: MinigameLoadSpectatingEvent) {
-        this.mapRenderer.startWatching(event.player)
+        val player = event.player
+        this.mapRenderer.startWatching(player)
+
+        if (this.players.isAdmin(player)) {
+            this.adminSidebar.addPlayer(player)
+        } else {
+            this.playerSidebar.addPlayer(player)
+        }
+    }
+
+    @Listener
+    private fun onAddAdmin(event: MinigameAddAdminEvent) {
+        val player = event.player
+        if (this.players.isSpectating(player)) {
+            this.adminSidebar.addPlayer(player)
+        }
+    }
+
+    @Listener
+    private fun onRemoveAdmin(event: MinigameRemoveAdminEvent) {
+        this.playerSidebar.addPlayer(event.player)
     }
 
     @Listener(flags = ListenerFlags.IS_SPECTATOR)
@@ -566,7 +626,7 @@ class UHCMinigame(
         return Rules.build {
             addRule("uhc.rules.announcement", 1 to 9.Seconds)
             addRule("uhc.rules.mods", 3)
-            addRule("uhc.rules.exploits", 1)
+            addRule("uhc.rules.exploits", 2)
             addRule("uhc.rules.pvp", 3, 6)
             addRule("uhc.rules.gameplay", 3)
             addRule("uhc.rules.glowing", 1)

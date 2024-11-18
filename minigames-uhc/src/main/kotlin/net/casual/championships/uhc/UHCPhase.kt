@@ -24,9 +24,6 @@ import net.casual.arcade.utils.impl.Sound
 import net.casual.arcade.utils.resetToDefault
 import net.casual.arcade.utils.set
 import net.casual.arcade.utils.teleportTo
-import net.casual.arcade.visuals.elements.ComponentElements
-import net.casual.arcade.visuals.elements.SidebarElements
-import net.casual.arcade.visuals.sidebar.Sidebar
 import net.casual.championships.common.task.GlowingBossbarTask
 import net.casual.championships.common.task.GracePeriodBossbarTask
 import net.casual.championships.common.util.CommonComponents
@@ -84,14 +81,6 @@ enum class UHCPhase(
             minigame.ui.removeAllNameTags()
             minigame.ui.addNameTag(CommonUI.createPlayingNameTag())
             minigame.ui.addNameTag(CommonUI.createPlayingHealthTag())
-
-            val sidebar = Sidebar(ComponentElements.of(UHCComponents.Bitmap.TITLE))
-            // TODO: Configure team sizes
-            CommonUI.addTeammates(sidebar, 5)
-            sidebar.addRow(SidebarElements.empty())
-            CommonUI.addBorderDistanceAndRadius(sidebar)
-            sidebar.addRow(SidebarElements.empty())
-            minigame.ui.setSidebar(sidebar)
         }
     },
     Grace(GRACE_ID) {

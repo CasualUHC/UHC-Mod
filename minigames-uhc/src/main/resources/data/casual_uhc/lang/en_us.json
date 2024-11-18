@@ -110,7 +110,7 @@
   "uhc.advancements.theEndIsNear.desc": "... We're in the endgame now",
 
   "uhc.rules.announcement": "Next Minigame: UHC",
-  "uhc.rules.announcement.1": " Please take a moment to read the rules and information about the game.",
+  "uhc.rules.announcement.1": "\n Please take a moment to read the rules and information about the game.\n\n",
 
   "uhc.rules.mods": "Mods",
   "uhc.rules.mods.1": " Keep mod usage minimal for fairness.",
@@ -119,7 +119,7 @@
 
   "uhc.rules.exploits": "Exploits",
   "uhc.rules.exploits.1": " Exploits that give you an unfair advantage are strictly prohibited!",
-  "uhc.rules.exploits.2": " TNT Duplication is the only exception to this.",
+  "uhc.rules.exploits.2": " TNT Duplication is the only exception to this.\n",
 
   "uhc.rules.border": "World Border",
   "uhc.rules.border.1": " The World Border shrinks in 6 stages.",
@@ -140,7 +140,7 @@
   "uhc.rules.gameplay.3": " Most passive mobs will not have AI.",
 
   "uhc.rules.glowing": "Glowing",
-  "uhc.rules.glowing.1": " Once the border reaches its final size, a two-minute countdown will begin. After the countdown finishes, all remaining players will receive the glowing effect",
+  "uhc.rules.glowing.1": "\n Once the border reaches its final size, a two-minute countdown will begin. After the countdown finishes, all remaining players will receive the glowing effect.\n",
 
   "uhc.rules.heads": "Player Heads",
   "uhc.rules.heads.1": " Players will always drop their heads on death which can be eaten for some buffs.",
@@ -148,25 +148,25 @@
 
   "uhc.rules.chat": "Chat",
   "uhc.rules.chat.1": " Please be respectful of everyone in both text and voice chat. You may be muted if you are not respectful.",
-  "uhc.rules.chat.2": " Please remain family friendly in public chats.",
+  "uhc.rules.chat.2": " Please remain family friendly in public chats.\n",
 
   "uhc.rules.spectators": "Spectators",
-  "uhc.rules.spectators.1": " Please be mindful that you do not share information that your team would not otherwise know.",
+  "uhc.rules.spectators.1": "\n Please be mindful that you do not share information that your team would not otherwise know.\n\n",
   "uhc.rules.spectators.2": " You can use the %s command to teleport, or use the gui.",
-  "uhc.rules.spectators.3": " Double tap %s to toggle between no-clip spectator mode.",
+  "uhc.rules.spectators.3": " Double tap %s to toggle between no-clip spectator mode.\n",
 
   "uhc.rules.gentleman": "Gentleman's Rules",
-  "uhc.rules.gentleman.1": " These rules do not cover everything. Do not try to find loopholes or work around the rules.",
+  "uhc.rules.gentleman.1": "\n These rules do not cover everything. Do not try to find loopholes or work around the rules.\n\n",
 
   "uhc.rules.reminders": "Reminders",
   "uhc.rules.reminders.1": " Toggle your team glowing with %s",
   "uhc.rules.reminders.2": " Toggle night vision with %s",
   "uhc.rules.reminders.3": " Send your coords in team chat with %s",
-  "uhc.rules.reminders.4": " Team chat will be enabled by default, to message in global chat, prefix your message with a %s, or toggle your default chat with the command %s",
+  "uhc.rules.reminders.4": "\n Team chat will be enabled by default, to message in global chat, prefix your message with a %s, or toggle your default chat with the command %s\n",
 
   "uhc.rules.questions": "Questions",
-  "uhc.rules.questions.1": " If at anytime you have questions or concerns please message an Admin.",
+  "uhc.rules.questions.1": "\n If at anytime you have questions or concerns please message an Admin.\n\n",
 
   "uhc.rules.finally": "UHC is about to begin!",
-  "uhc.rules.finally.1": " Good Luck and Have Fun!"
+  "uhc.rules.finally.1": "\n Good Luck and Have Fun!\n\n\n"
 }

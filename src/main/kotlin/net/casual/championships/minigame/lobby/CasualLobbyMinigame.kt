@@ -21,9 +21,12 @@ import net.casual.arcade.minigame.template.location.LocationTemplate
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
 import net.casual.arcade.resources.utils.ResourcePackUtils.afterPacksLoad
 import net.casual.arcade.scheduler.MinecraftScheduler
+import net.casual.arcade.utils.ComponentUtils.bold
 import net.casual.arcade.utils.ComponentUtils.command
+import net.casual.arcade.utils.ComponentUtils.gold
 import net.casual.arcade.utils.ComponentUtils.green
 import net.casual.arcade.utils.ComponentUtils.lime
+import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.mini
 import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.ComponentUtils.shadowless
@@ -37,7 +40,12 @@ import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.impl.Location
 import net.casual.arcade.utils.time.MinecraftTimeDuration
+import net.casual.arcade.visuals.elements.ComponentElements
+import net.casual.arcade.visuals.elements.SidebarElements
+import net.casual.arcade.visuals.elements.UniversalElement
 import net.casual.arcade.visuals.firework.VirtualFirework
+import net.casual.arcade.visuals.sidebar.Sidebar
+import net.casual.arcade.visuals.sidebar.SidebarComponent
 import net.casual.arcade.visuals.tab.PlayerListDisplay
 import net.casual.championships.CasualMod
 import net.casual.championships.common.event.MinesweeperWonEvent
@@ -124,6 +132,23 @@ class CasualLobbyMinigame(
         this.advancements.addAll(LobbyAdvancements)
 
         this.setBossbar(LobbyBossbar())
+
+        val name = CasualMinigames.getMinigames().event.name.replace('_', ' ')
+        val sidebar = Sidebar(ComponentElements.of(name.literal().bold().gold().mini()))
+
+        sidebar.addRow(SidebarElements.empty())
+        CommonUI.addTeammates(sidebar, 5, false)
+        sidebar.addRow(SidebarElements.empty())
+        sidebar.addRow(UniversalElement.cached {
+            val online = this.players.onlinePlayerCount
+            SidebarComponent.withCustomScore(" Online: ".literal().mini(), "$online ".literal().red().mini())
+        })
+        sidebar.addRow(UniversalElement.cached {
+            val expected = this.teams.getPlayingTeams().sumOf { it.players.size }
+            SidebarComponent.withCustomScore(" Expected: ".literal().mini(), "$expected ".literal().red().mini())
+        })
+        sidebar.addRow(SidebarElements.empty())
+        this.ui.setSidebar(sidebar)
     }
 
     @Listener

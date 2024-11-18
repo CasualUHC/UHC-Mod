@@ -32,8 +32,9 @@ data class DimensionWithSeed(
     }
 }
 
-open class UHCMinigameFactory(
-    private val dimensions: Map<VanillaDimension, DimensionWithSeed>
+class UHCMinigameFactory(
+    private val dimensions: Map<VanillaDimension, DimensionWithSeed>,
+    private val teamSize: Int
 ): MinigameFactory {
     override fun codec(): MapCodec<out MinigameFactory> {
         return CODEC
@@ -62,6 +63,7 @@ open class UHCMinigameFactory(
             levels.getOrThrow(VanillaDimension.Overworld),
             levels.getOrThrow(VanillaDimension.Nether),
             levels.getOrThrow(VanillaDimension.End),
+            this.teamSize,
             this
         )
     }
@@ -80,7 +82,8 @@ open class UHCMinigameFactory(
                     VanillaDimension.CODEC,
                     DimensionWithSeed.CODEC,
                     StringRepresentable.keys(VanillaDimension.entries.toTypedArray())
-                ).fieldOf("dimensions").forGetter(UHCMinigameFactory::dimensions)
+                ).fieldOf("dimensions").forGetter(UHCMinigameFactory::dimensions),
+                Codec.intRange(1, 20).optionalFieldOf("team_size", 5).forGetter(UHCMinigameFactory::teamSize)
             ).apply(instance, ::UHCMinigameFactory)
         }
     }

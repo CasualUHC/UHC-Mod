@@ -11,6 +11,7 @@ import net.casual.arcade.utils.ComponentUtils
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.mini
 import net.casual.arcade.utils.ComponentUtils.yellow
+import net.casual.arcade.utils.ItemUtils.named
 import net.casual.arcade.utils.TeamUtils.color
 import net.casual.championships.common.CommonMod
 import net.casual.championships.uhc.border.UHCBorderSize
@@ -56,7 +57,7 @@ class UHCMapRenderer(private val uhc: UHCMinigame) {
 
     fun getMaps(): List<ItemStack> {
         return this.canvases.values.map { data ->
-            val map = data.canvas.asStack()
+            val map = data.canvas.asStack().named(data.dimensionIcon.text!!)
             val model = data.model
             if (model != null) {
                 map.set(DataComponents.ITEM_MODEL, model)
