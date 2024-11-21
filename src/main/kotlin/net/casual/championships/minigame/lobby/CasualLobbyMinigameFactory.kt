@@ -3,6 +3,7 @@ package net.casual.championships.minigame.lobby
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
+import net.casual.arcade.dimensions.level.LevelPersistence
 import net.casual.arcade.dimensions.utils.addCustomLevel
 import net.casual.arcade.dimensions.utils.impl.VoidChunkGenerator
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
@@ -46,6 +47,7 @@ class CasualLobbyMinigameFactory(
             chunkGenerator(VoidChunkGenerator(context.server, biome))
             defaultLevelProperties()
             tickTime(true)
+            persistence(LevelPersistence.Temporary)
         }
         val minigame = CasualLobbyMinigame(
             context.server,
@@ -55,7 +57,8 @@ class CasualLobbyMinigameFactory(
             this.podium,
             this.podiumView,
             this.fireworkLocations,
-            this.duelArenas
+            this.duelArenas,
+            this
         )
         CasualMinigames.setCasualUI(minigame)
         // TODO:

@@ -23,9 +23,10 @@ import net.casual.arcade.minigame.utils.MinigameUtils.broadcastChangesToAdmin
 import net.casual.arcade.resources.utils.ResourcePackUtils.toPackInfo
 import net.casual.arcade.utils.ComponentUtils.bold
 import net.casual.arcade.utils.ComponentUtils.color
+import net.casual.arcade.utils.ComponentUtils.green
 import net.casual.arcade.utils.ComponentUtils.lime
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.mini
+import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.ComponentUtils.white
 import net.casual.arcade.utils.ComponentUtils.yellow
 import net.casual.arcade.utils.JsonUtils
@@ -123,10 +124,12 @@ object CasualMinigames {
         }
 
         GlobalEventHandler.register<PlayerRequestLoginEvent> { event ->
-            if (!floodgates && !event.server.playerList.isOp(event.profile)) {
-                event.cancel("CasualChampionships isn't quite ready yet...".literal())
+            if (event.isAccepted && !floodgates && !event.server.playerList.isOp(event.profile)) {
+                event.deny(Component.literal("CasualChampionships isn't quite ready yet..."))
+            }
+            if (!event.isAccepted) {
                 event.server.playerList.players.broadcastToOps(
-                    "${event.profile.name} tried to join, but floodgates are closed".literal()
+                    Component.literal("${event.profile.name} tried to join, but was denied because: ").append(event.reason!!)
                 )
             }
         }
@@ -148,7 +151,7 @@ object CasualMinigames {
             }
 
             it.server.playerList.setUsingWhiteList(true)
-            this.reloadTeams(it.server)
+            this.createTeams(it.server)
         }
 
         GlobalEventHandler.register<PlayerJoinEvent>(phase = PlayerJoinEvent.PHASE_INITIALIZED) {
@@ -242,7 +245,7 @@ object CasualMinigames {
     private fun setPauseNotification(minigame: Minigame) {
         minigame.events.register<MinigamePauseEvent> {
             minigame.chat.broadcastWithSound(
-                "Minigame is now paused".literal(),
+                Component.literal("Minigame is now paused"),
                 Sound(CommonSounds.GAME_PAUSED)
             )
         }
@@ -309,44 +312,44 @@ object CasualMinigames {
 
     private fun getMOTD(): Component {
         return Component.empty().apply {
-            append("╔".literal().color(0x009BFF))
-            append("═".literal().color(0x19A5FF))
-            append("═".literal().color(0x33AFFF))
-            append("═".literal().color(0x4DB9FF))
-            append("═".literal().color(0x66C3FF))
-            append("═".literal().color(0x80CDFF))
-            append("\uD83D\uDDE1".literal().yellow())
+            append(Component.literal("╔").color(0x009BFF))
+            append(Component.literal("═").color(0x19A5FF))
+            append(Component.literal("═").color(0x33AFFF))
+            append(Component.literal("═").color(0x4DB9FF))
+            append(Component.literal("═").color(0x66C3FF))
+            append(Component.literal("═").color(0x80CDFF))
+            append(Component.literal("\uD83D\uDDE1").yellow())
             append(" ")
-            append("C${"asual".toSmallCaps()} C${"hampionships".toSmallCaps()}".literal().bold().color(0xFFAC1C))
+            append(Component.literal("C${"asual".toSmallCaps()} C${"hampionships".toSmallCaps()}").bold().color(0xFFAC1C))
             append(" ")
-            append("\uD83C\uDFF9".literal().yellow())
-            append("═".literal().color(0x80CDFF))
-            append("═".literal().color(0x66C3FF))
-            append("═".literal().color(0x4DB9FF))
-            append("═".literal().color(0x33AFFF))
-            append("═".literal().color(0x19A5FF))
-            append("╗".literal().color(0x009BFF))
+            append(Component.literal("\uD83C\uDFF9").yellow())
+            append(Component.literal("═").color(0x80CDFF))
+            append(Component.literal("═").color(0x66C3FF))
+            append(Component.literal("═").color(0x4DB9FF))
+            append(Component.literal("═").color(0x33AFFF))
+            append(Component.literal("═").color(0x19A5FF))
+            append(Component.literal("╗").color(0x009BFF))
             append("\n")
 
-            append("╚".literal().color(0x009BFF))
-            append("═".literal().color(0x19A5FF))
-            append("═".literal().color(0x33AFFF))
+            append(Component.literal("╚").color(0x009BFF))
+            append(Component.literal("═").color(0x19A5FF))
+            append(Component.literal("═").color(0x33AFFF))
 
             append("   ")
-            append("be prepared".toSmallCaps().literal().lime())
+            append(Component.literal("be prepared".toSmallCaps()).lime())
             append(" ")
-            append("◆".literal().white())
+            append(Component.literal("◆").white())
             append(" ")
-            append("let the chaos ensue".toSmallCaps().literal().lime())
+            append(Component.literal("let the chaos ensue".toSmallCaps()).lime())
             append("    ")
 
-            append("═".literal().color(0x33AFFF))
-            append("═".literal().color(0x19A5FF))
-            append("╝".literal().color(0x009BFF))
+            append(Component.literal("═").color(0x33AFFF))
+            append(Component.literal("═").color(0x19A5FF))
+            append(Component.literal("╝").color(0x009BFF))
         }
     }
 
-    fun reloadTeams(server: MinecraftServer) {
+    fun createTeams(server: MinecraftServer) {
         this.getDataManager().createTeams(server).thenApplyAsync({ teams ->
             val scoreboard = server.scoreboard
             this.minigame.teams.setAdminTeam(scoreboard.getOrCreateAdminTeam())
@@ -375,15 +378,34 @@ object CasualMinigames {
         this.reloadWhitelist(server)
     }
 
-    fun reloadWhitelist(server: MinecraftServer) {
-        this.getDataManager().getParticipants().thenAcceptAsync({ participants ->
+    fun reloadTeams(server: MinecraftServer) {
+        this.getDataManager().reloadTeams(server)
+        return this.reloadWhitelist(server)
+    }
+
+    private fun reloadWhitelist(server: MinecraftServer) {
+        this.getDataManager().getParticipants().thenApplyAsync({ participants ->
             val whitelist = server.playerList.whiteList
+            val previous = whitelist.userList.toSet()
             for (entry in whitelist.entries.toList()) {
                 server.playerList.whiteList.remove(entry)
             }
+            val added = HashSet<String>()
+            val removed = previous - participants.mapTo(HashSet()) { it.name }
             for (participant in participants) {
                 whitelist.add(UserWhiteListEntry(participant))
+                if (!previous.contains(participant.name)) {
+                    added.add(participant.name)
+                }
             }
+            val component = Component.literal("Reloaded whitelist.")
+            if (added.isNotEmpty()) {
+                component.append(Component.literal("\nAdded: ").green()).append(added.joinToString { it })
+            }
+            if (removed.isNotEmpty()) {
+                component.append(Component.literal("\nRemoved: ").red()).append(removed.joinToString { it })
+            }
+            server.playerList.players.broadcastToOps(component.mini())
         }, server)
     }
 

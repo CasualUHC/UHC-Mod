@@ -57,7 +57,7 @@ import net.minecraft.world.level.GameType
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes
 import net.minecraft.world.level.storage.loot.LootParams
 import net.minecraft.world.level.storage.loot.LootTable
-import java.util.UUID
+import java.util.*
 import kotlin.random.Random
 
 class DuelMinigame(

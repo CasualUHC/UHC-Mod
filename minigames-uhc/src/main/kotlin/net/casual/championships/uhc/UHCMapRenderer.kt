@@ -7,8 +7,7 @@ import it.unimi.dsi.fastutil.doubles.Double2ObjectMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.casual.arcade.dimensions.level.vanilla.VanillaLikeLevel
 import net.casual.arcade.resources.font.heads.PlayerHeadComponents
-import net.casual.arcade.utils.ComponentUtils
-import net.casual.arcade.utils.ComponentUtils.literal
+import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.ComponentUtils.mini
 import net.casual.arcade.utils.ComponentUtils.yellow
 import net.casual.arcade.utils.ItemUtils.named
@@ -81,7 +80,7 @@ class UHCMapRenderer(private val uhc: UHCMinigame) {
             }
 
             val canvas = DrawableCanvas.create()
-            val formattedDimension = dimensionName.literal().mini().yellow()
+            val formattedDimension = Component.literal(dimensionName).mini().yellow()
             CanvasData(
                 canvas,
                 model,
@@ -139,7 +138,7 @@ class UHCMapRenderer(private val uhc: UHCMinigame) {
         }
 
         val roundedStartSize = startSize.roundToInt()
-        sizeIcon.text = "$roundedStartSize x $roundedStartSize".literal().mini().yellow()
+        sizeIcon.text = Component.literal("$roundedStartSize x $roundedStartSize").mini().yellow()
 
         for (players in level.players()) {
             if (this.isPlayerValidForIcon(players, level, border.centerX, border.centerZ, startSize)) {
@@ -191,9 +190,9 @@ class UHCMapRenderer(private val uhc: UHCMinigame) {
             if (head != null) {
                 icon.text = Component.empty()
                     .append(head)
-                    .append(ComponentUtils.space(-10))
-                    .append(UHCComponents.Bitmap.PLAYER_BACKGROUND.color(player.team))
-                    .append(ComponentUtils.space(-1))
+                    .append(SpacingFontResources.spaced(-10))
+                    .append(UHCComponents.Bitmap.PLAYER_BACKGROUND.copy().color(player.team))
+                    .append(SpacingFontResources.spaced(-1))
             }
         // }
     }

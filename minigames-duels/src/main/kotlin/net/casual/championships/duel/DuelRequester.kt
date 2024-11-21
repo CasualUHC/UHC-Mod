@@ -3,9 +3,8 @@ package net.casual.championships.duel
 import net.casual.arcade.commands.function
 import net.casual.arcade.minigame.ready.ReadyHandler
 import net.casual.arcade.minigame.ready.ReadyState
-import net.casual.arcade.utils.ComponentUtils
+import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.ComponentUtils.lime
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.mini
 import net.casual.arcade.utils.ComponentUtils.red
 import net.minecraft.network.chat.Component
@@ -23,7 +22,7 @@ class DuelRequester(
     override fun broadcastReadyCheck(receiver: ServerPlayer, ready: () -> Unit, notReady: () -> Unit) {
         val message = Component.empty()
             .append(Component.translatable("casual.duel.challenge", requester.displayName))
-            .append(ComponentUtils.space(4))
+            .append(SpacingFontResources.spaced(4))
             .append(
                 Component.literal("[")
                     .append(Component.translatable("casual.duel.challenge.accept"))
@@ -31,7 +30,7 @@ class DuelRequester(
                     .function { ready.invoke() }
                     .lime()
             )
-            .append(ComponentUtils.space(4))
+            .append(SpacingFontResources.spaced(4))
             .append(
                 Component.literal("[")
                     .append(Component.translatable("casual.duel.challenge.decline"))
@@ -61,7 +60,7 @@ class DuelRequester(
 
     }
 
-    fun broadcast(message: Component) {
+    private fun broadcast(message: Component) {
         for (player in this.players) {
             this.broadcastTo(message, player)
         }
@@ -72,6 +71,6 @@ class DuelRequester(
     }
 
     companion object {
-        val DUEL_PREFIX = "[⚔]".literal().lime()
+        val DUEL_PREFIX = Component.literal("[⚔]").lime()
     }
 }

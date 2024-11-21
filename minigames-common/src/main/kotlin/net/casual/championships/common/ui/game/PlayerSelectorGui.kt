@@ -1,7 +1,7 @@
 package net.casual.championships.common.ui.game
 
 import com.mojang.authlib.GameProfile
-import net.casual.arcade.utils.ComponentUtils
+import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.ComponentUtils.mini
 import net.casual.arcade.utils.ComponentUtils.white
 import net.casual.arcade.utils.ComponentUtils.yellow
@@ -25,8 +25,8 @@ class PlayerSelectorGui(
 ): CommonSimpleGui(MenuType.GENERIC_9x6, player, true) {
     init {
         this.title = Component.empty()
-            .append(ComponentUtils.space(-8))
-            .append(CommonComponents.Gui.TEAM_PLAYER_SELECTOR.white())
+            .append(SpacingFontResources.spaced(-8))
+            .append(CommonComponents.Gui.TEAM_PLAYER_SELECTOR.copy().white())
 
         for ((i, profile) in profiles.take(5).withIndex()) {
             val head = ItemUtils.createPlayerHead(profile, CommonItems.FORWARD_FACING_PLAYER_HEAD)

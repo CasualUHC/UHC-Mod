@@ -25,7 +25,6 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlac
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.scores.PlayerTeam
 import kotlin.math.max
-import kotlin.math.min
 
 object UHCSpreadTeleporter: ShapedTeleporter() {
     private val structurePath = UHCMod.container.findPath("structures").get()

@@ -5,7 +5,7 @@ import com.google.common.cache.CacheLoader
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.resources.font.heads.PlayerHeadComponents
 import net.casual.arcade.resources.font.heads.PlayerHeadFont
-import net.casual.arcade.utils.ComponentUtils
+import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.ComponentUtils.color
 import net.casual.arcade.utils.ComponentUtils.greyscale
 import net.casual.arcade.utils.ComponentUtils.italicise
@@ -52,7 +52,7 @@ open class CasualPlayerListEntries(
             GREYSCALE_CACHE.get(username).getNow(PlayerHeadFont.STEVE_HEAD)
         }
         return PlayerListEntries.Entry.fromComponent(
-            Component.empty().append(head).append(ComponentUtils.space(2)).append(name.mini())
+            Component.empty().append(head).append(SpacingFontResources.spaced(2)).append(name.mini())
         )
     }
 

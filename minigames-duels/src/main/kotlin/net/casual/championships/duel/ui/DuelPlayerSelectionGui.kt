@@ -1,6 +1,6 @@
 package net.casual.championships.duel.ui
 
-import net.casual.arcade.utils.ComponentUtils
+import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.ComponentUtils.mini
 import net.casual.arcade.utils.ComponentUtils.white
 import net.casual.arcade.utils.ComponentUtils.yellow
@@ -32,8 +32,8 @@ class DuelPlayerSelectionGui(
         this.loadPlayers()
 
         this.title = Component.empty()
-            .append(ComponentUtils.space(-8))
-            .append(CommonComponents.Gui.PLAYER_SELECTOR.white())
+            .append(SpacingFontResources.spaced(-8))
+            .append(CommonComponents.Gui.PLAYER_SELECTOR.copy().white())
     }
 
     private fun loadPlayers() {

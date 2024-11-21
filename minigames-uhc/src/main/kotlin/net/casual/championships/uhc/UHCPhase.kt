@@ -9,7 +9,6 @@ import net.casual.arcade.minigame.task.impl.PhaseChangeTask
 import net.casual.arcade.minigame.template.teleporter.EntityTeleporter.Companion.teleport
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.utils.ComponentUtils.gold
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.mini
 import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.PlayerUtils.sendSound
@@ -30,6 +29,7 @@ import net.casual.championships.common.util.CommonComponents
 import net.casual.championships.common.util.CommonSounds
 import net.casual.championships.common.util.CommonUI
 import net.casual.championships.common.util.CommonUI.broadcastGame
+import net.minecraft.network.chat.Component
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.world.level.GameRules
 
@@ -134,7 +134,7 @@ enum class UHCPhase(
             val teams = minigame.teams.getPlayingTeams()
             if (teams.size != 1) {
                 val message = "Expected to have one team remaining on game over!"
-                minigame.chat.broadcastTo(message.literal(), minigame.players.admins)
+                minigame.chat.broadcastTo(Component.literal(message), minigame.players.admins)
                 return
             }
             val team = teams.first()

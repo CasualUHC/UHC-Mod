@@ -151,9 +151,9 @@
   "uhc.rules.chat.2": " Please remain family friendly in public chats.\n",
 
   "uhc.rules.spectators": "Spectators",
-  "uhc.rules.spectators.1": "\n Please be mindful that you do not share information that your team would not otherwise know.\n\n",
+  "uhc.rules.spectators.1": " Please be mindful that you do not share information that your team would not otherwise know.",
   "uhc.rules.spectators.2": " You can use the %s command to teleport, or use the gui.",
-  "uhc.rules.spectators.3": " Double tap %s to toggle between no-clip spectator mode.\n",
+  "uhc.rules.spectators.3": " Double tap %s to toggle between no-clip spectator mode.",
 
   "uhc.rules.gentleman": "Gentleman's Rules",
   "uhc.rules.gentleman.1": "\n These rules do not cover everything. Do not try to find loopholes or work around the rules.\n\n",

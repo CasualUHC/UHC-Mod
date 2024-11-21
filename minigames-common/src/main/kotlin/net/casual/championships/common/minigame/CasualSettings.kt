@@ -6,7 +6,6 @@ import net.casual.arcade.minigame.settings.MinigameSettings
 import net.casual.arcade.minigame.settings.display.DisplayableSettingsDefaults
 import net.casual.arcade.minigame.settings.display.MenuGameSetting
 import net.casual.arcade.minigame.settings.display.MenuGameSettingBuilder
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.mini
 import net.casual.arcade.utils.ItemUtils.named
 import net.casual.arcade.visuals.screen.SelectionGuiBuilder
@@ -26,7 +25,7 @@ import net.minecraft.world.item.ItemStack
 
 open class CasualSettings(
     minigame: Minigame,
-    defaults: DisplayableSettingsDefaults = Defaults("Casual Minigame Settings".literal())
+    defaults: DisplayableSettingsDefaults = Defaults(Component.literal("Casual Minigame Settings"))
 ): MinigameSettings(minigame, defaults) {
     open class Defaults(title: Component): DisplayableSettingsDefaults() {
         private val components = CommonScreens.named(title)

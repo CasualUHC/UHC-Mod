@@ -3,7 +3,6 @@ package net.casual.championships.common.ui
 import net.casual.arcade.utils.ComponentUtils.bold
 import net.casual.arcade.utils.ComponentUtils.gold
 import net.casual.arcade.utils.ComponentUtils.lime
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.mini
 import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.ComponentUtils.yellow
@@ -23,7 +22,7 @@ object CasualCountdown: TitledCountdown {
     }
 
     override fun getCountdownSubtitle(current: Int): Component {
-        val subtitle = Component.empty().append("▶ ").append(current.toString().literal().mini()).append(" ◀")
+        val subtitle = Component.empty().append("▶ ").append(Component.literal(current.toString()).mini()).append(" ◀")
         when (current) {
             3 -> subtitle.red()
             2 -> subtitle.yellow()

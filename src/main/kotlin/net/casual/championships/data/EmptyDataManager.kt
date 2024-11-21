@@ -16,6 +16,10 @@ class EmptyDataManager: DataManager {
         return CompletableFuture.completedFuture(listOf())
     }
 
+    override fun reloadTeams(server: MinecraftServer): CompletableFuture<Void> {
+        return CompletableFuture.completedFuture(null)
+    }
+
     override fun syncUHCData(uhc: UHCMinigame) {
 
     }

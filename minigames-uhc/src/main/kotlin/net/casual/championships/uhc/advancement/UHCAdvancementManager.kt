@@ -105,12 +105,11 @@ class UHCAdvancementManager(
 
     @Listener(flags = IS_PLAYING, priority = 2000, during = During(before = GAME_OVER_ID))
     private fun onPlayerJoin(event: PlayerJoinEvent) {
-        val relogs = this.uhc.stats.getOrCreateStat(event.player, ArcadeStats.RELOGS)
-
+        val relogs = this.uhc.stats.getOrCreateStat(event.player, ArcadeStats.RELOGS).value
         // Wait for player to load in
         GlobalTickedScheduler.schedule(1.Seconds, PlayerTask(event.player) { player ->
             player.grantAdvancement(UHCAdvancements.COMBAT_LOGGER)
-            if (relogs.value == 10) {
+            if (relogs == 10) {
                 player.grantAdvancement(UHCAdvancements.OK_WE_BELIEVE_YOU_NOW)
             }
         })

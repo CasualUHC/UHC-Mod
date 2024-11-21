@@ -7,7 +7,7 @@ import eu.pb4.sgui.api.gui.SimpleGui
 import it.unimi.dsi.fastutil.ints.IntArraySet
 import it.unimi.dsi.fastutil.ints.IntSet
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.utils.ComponentUtils
+import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.ComponentUtils.white
 import net.casual.arcade.utils.ItemUtils.named
 import net.casual.championships.common.event.MinesweeperWonEvent
@@ -53,8 +53,8 @@ class MinesweeperGui(
         this.setSlot(88, this.clockItem)
         this.setSlot(89, GuiElement(PLAY_AGAIN_TILE) { _, _, _, gui -> MinesweeperGui(gui.player).open() })
 
-        this.title = Component.empty().append(ComponentUtils.space(-8))
-            .append(CommonComponents.Gui.MINESWEEPER_MENU.white())
+        this.title = Component.empty().append(SpacingFontResources.spaced(-8))
+            .append(CommonComponents.Gui.MINESWEEPER_MENU.copy().white())
     }
 
     override fun onTick() {

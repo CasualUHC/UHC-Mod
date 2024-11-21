@@ -1,7 +1,7 @@
 package net.casual.championships.duel.ui
 
 import net.casual.arcade.minigame.settings.display.MenuGameSetting
-import net.casual.arcade.utils.ComponentUtils
+import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.ComponentUtils.white
 import net.casual.arcade.utils.ItemUtils.hideTooltip
 import net.casual.arcade.visuals.screen.setSlot
@@ -22,8 +22,8 @@ class DuelSettingsGui(
         this.setParent(this.configuration)
 
         this.title = Component.empty()
-            .append(ComponentUtils.space(-8))
-            .append(CommonComponents.Gui.DUEL_SETTINGS.white())
+            .append(SpacingFontResources.spaced(-8))
+            .append(CommonComponents.Gui.DUEL_SETTINGS.copy().white())
 
         this.createHorizontalSetting(19, this.settings.displayableTeams)
         this.createHorizontalSetting(28, this.settings.displayableGlowing)

@@ -29,14 +29,13 @@ import net.casual.arcade.minigame.stats.Stat.Companion.increment
 import net.casual.arcade.minigame.task.impl.MinigameTask
 import net.casual.arcade.minigame.utils.MinigameUtils.addEventListener
 import net.casual.arcade.minigame.utils.MinigameUtils.requiresAdminOrPermission
+import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.utils.ComponentUtils
 import net.casual.arcade.utils.ComponentUtils.bold
 import net.casual.arcade.utils.ComponentUtils.color
-import net.casual.arcade.utils.ComponentUtils.green
 import net.casual.arcade.utils.ComponentUtils.join
 import net.casual.arcade.utils.ComponentUtils.lime
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.mini
 import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.ComponentUtils.withMiniShiftedDownFont
@@ -70,13 +69,13 @@ import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.impl.Location
 import net.casual.arcade.utils.impl.Sound
 import net.casual.arcade.visuals.elements.ComponentElements
-import net.casual.arcade.visuals.elements.SidebarElements
-import net.casual.arcade.visuals.elements.UniversalElement
+import net.casual.arcade.visuals.elements.PlayerSpecificElement
 import net.casual.arcade.visuals.predicate.PlayerObserverPredicate
 import net.casual.arcade.visuals.shapes.ArrowShape
 import net.casual.arcade.visuals.shapes.ShapePoints.Companion.drawAsParticlesFor
-import net.casual.arcade.visuals.sidebar.Sidebar
+import net.casual.arcade.visuals.sidebar.DynamicSidebar
 import net.casual.arcade.visuals.sidebar.SidebarComponent
+import net.casual.arcade.visuals.sidebar.SidebarComponents
 import net.casual.championships.common.event.TippedArrowTradeOfferEvent
 import net.casual.championships.common.event.border.BorderEntityPortalEntryPointEvent
 import net.casual.championships.common.event.border.BorderPortalWithinBoundsEvent
@@ -85,8 +84,10 @@ import net.casual.championships.common.minigame.rules.Rules
 import net.casual.championships.common.minigame.rules.RulesProvider
 import net.casual.championships.common.recipes.GoldenHeadRecipe
 import net.casual.championships.common.ui.bossbar.ActiveBossbar
-import net.casual.championships.common.ui.elements.MobcapElement
-import net.casual.championships.common.ui.elements.PerformanceElement
+import net.casual.championships.common.ui.elements.MinigamePhaseSidebarElement
+import net.casual.championships.common.ui.elements.MobcapSidebarElement
+import net.casual.championships.common.ui.elements.PerformanceSidebarElement
+import net.casual.championships.common.ui.elements.TeammatesSidebarElements
 import net.casual.championships.common.util.*
 import net.casual.championships.common.util.CommonUI.broadcastGame
 import net.casual.championships.common.util.CommonUI.broadcastInfo
@@ -139,14 +140,10 @@ class UHCMinigame(
     val overworld: ServerLevel,
     val nether: ServerLevel,
     val end: ServerLevel,
-    private val teamSize: Int = 5,
     private val factory: UHCMinigameFactory? = null
 ): Minigame(server, uuid), MultiLevelBorderListener, RulesProvider {
     private val tracker = MultiLevelBorderTracker()
     private var movingBorders = HashSet<ResourceKey<Level>>()
-
-    private val playerSidebar = Sidebar(ComponentElements.of(UHCComponents.Bitmap.TITLE))
-    private val adminSidebar = Sidebar(ComponentElements.of(UHCComponents.Bitmap.TITLE))
 
     override val id = ID
 
@@ -198,25 +195,7 @@ class UHCMinigame(
 
         this.levels.spawn = MinigameLevelManager.SpawnLocation.global(this.overworld)
 
-        CommonUI.addTeammates(this.playerSidebar, this.teamSize)
-        this.playerSidebar.addRow(SidebarElements.empty())
-        CommonUI.addBorderDistanceAndRadius(this.playerSidebar)
-        this.playerSidebar.addRow(SidebarElements.empty())
-
-        this.adminSidebar.addRow(PerformanceElement.cached())
-        this.adminSidebar.addRow(SidebarElements.empty())
-        this.adminSidebar.addRow(UniversalElement.cached {
-            SidebarComponent.withCustomScore(
-                "  Phase:".literal().mini(),
-                this.phase.id.literal().append("  ").green().mini()
-            )
-        })
-        this.adminSidebar.addRow(SidebarElements.empty())
-        this.adminSidebar.addRow(SidebarElements.withNoScore(" Mobcaps:".literal().mini()))
-        this.adminSidebar.addRow(MobcapElement.cached())
-        this.adminSidebar.addRow(SidebarElements.empty())
-        CommonUI.addBorderDistanceAndRadius(this.adminSidebar)
-        this.adminSidebar.addRow(SidebarElements.empty())
+        this.ui.setSidebar(this.createSidebar())
     }
 
     @Listener(during = During(before = BORDER_FINISHED_ID))
@@ -295,9 +274,6 @@ class UHCMinigame(
         this.mapRenderer.update(this.overworld)
         this.mapRenderer.update(this.nether)
         this.mapRenderer.update(this.end)
-
-        this.adminSidebar.tick(event.server)
-        this.playerSidebar.tick(event.server)
     }
 
     @Listener(during = During(before = GAME_OVER_ID))
@@ -434,17 +410,12 @@ class UHCMinigame(
         if (!PlayerRecorders.has(player) && this.settings.replay) {
             PlayerRecorders.create(player).start()
         }
-
-        this.playerSidebar.addPlayer(player)
     }
 
     @Listener
     private fun onMinigameRemovePlayer(event: MinigameRemovePlayerEvent) {
         val player = event.player
         player.isInvisible = false
-
-        this.playerSidebar.removePlayer(player)
-        this.adminSidebar.removePlayer(player)
     }
 
     @Listener
@@ -504,7 +475,7 @@ class UHCMinigame(
             player.teleportTo(Location.of(0.0, 128.0, 0.0, level = this.overworld))
         }
 
-        val rules = this.getSpectatorRules().join("\n\n".literal())
+        val rules = this.getSpectatorRules().join(Component.literal("\n\n"))
         this.scheduler.schedule(1.Ticks) {
             this.chat.broadcastInfo(rules.mini(), listOf(player))
         }
@@ -514,25 +485,6 @@ class UHCMinigame(
     private fun onLoadSpectating(event: MinigameLoadSpectatingEvent) {
         val player = event.player
         this.mapRenderer.startWatching(player)
-
-        if (this.players.isAdmin(player)) {
-            this.adminSidebar.addPlayer(player)
-        } else {
-            this.playerSidebar.addPlayer(player)
-        }
-    }
-
-    @Listener
-    private fun onAddAdmin(event: MinigameAddAdminEvent) {
-        val player = event.player
-        if (this.players.isSpectating(player)) {
-            this.adminSidebar.addPlayer(player)
-        }
-    }
-
-    @Listener
-    private fun onRemoveAdmin(event: MinigameRemoveAdminEvent) {
-        this.playerSidebar.addPlayer(event.player)
     }
 
     @Listener(flags = ListenerFlags.IS_SPECTATOR)
@@ -637,8 +589,6 @@ class UHCMinigame(
                 val rules = getSpectatorRules()
                 entry {
                     line(rules[0])
-                }
-                entry {
                     line(rules[1])
                     line(rules[2])
                 }
@@ -647,16 +597,16 @@ class UHCMinigame(
             rule {
                 title = RuleUtils.formatTitle(Component.translatable("uhc.rules.reminders"))
                 entry {
-                    val teamglow = "/uhc teamglow".literal().mini().bold().color(0x65b7db)
-                    val fullbright = "/uhc fullbright".literal().mini().bold().color(0x65b7db)
-                    val pos = "/uhc pos".literal().mini().bold().color(0x65b7db)
+                    val teamglow = Component.literal("/uhc teamglow").mini().bold().color(0x65b7db)
+                    val fullbright = Component.literal("/uhc fullbright").mini().bold().color(0x65b7db)
+                    val pos = Component.literal("/uhc pos").mini().bold().color(0x65b7db)
                     line(RuleUtils.formatLine(Component.translatable("uhc.rules.reminders.1", teamglow)))
                     line(RuleUtils.formatLine(Component.translatable("uhc.rules.reminders.2", fullbright)))
                     line(RuleUtils.formatLine(Component.translatable("uhc.rules.reminders.3", pos)))
                 }
                 entry {
-                    val prefix = "!".literal().mini().bold().color(0x65b7db)
-                    val chat = "/chat".literal().mini().bold().color(0x65b7db)
+                    val prefix = Component.literal("!").mini().bold().color(0x65b7db)
+                    val chat = Component.literal("/chat").mini().bold().color(0x65b7db)
                     line(RuleUtils.formatLine(Component.translatable("uhc.rules.reminders.4", prefix, chat)))
                 }
             }
@@ -666,7 +616,7 @@ class UHCMinigame(
     }
 
     private fun getSpectatorRules(): List<MutableComponent> {
-        val s = "/s".literal().mini().bold().color(0x65b7db)
+        val s = Component.literal("/s").mini().bold().color(0x65b7db)
         val sneak = Component.keybind("key.sneak").mini().bold().color(0x65b7db)
         return listOf(
             RuleUtils.formatLine(Component.translatable("uhc.rules.spectators.1")),
@@ -778,7 +728,7 @@ class UHCMinigame(
         val time = if (instant) -1.0 else modified.getRemainingMovingTimeAsPercent(border.size, level, multiplier)
 
         UHCMod.logger.info("Level ${level.dimension().location()} moving to $dest")
-        moveWorldBorder(border, dest, time)
+        this.moveWorldBorder(border, dest, time)
     }
 
     private fun moveWorldBorder(border: TrackedBorder, newSize: Double, percent: Double = -1.0) {
@@ -846,6 +796,42 @@ class UHCMinigame(
         }
     }
 
+    private fun createSidebar(): DynamicSidebar {
+        val sidebar = DynamicSidebar(ComponentElements.of(UHCComponents.Bitmap.TITLE))
+        val border = CommonUI.getBorderSidebarElements()
+        val teammates = TeammatesSidebarElements(Component.empty(), SpacingFontResources.spaced(4), true)
+        val performance = PerformanceSidebarElement(SpacingFontResources.spaced(2)).cached()
+        val phase = MinigamePhaseSidebarElement(this, SpacingFontResources.spaced(2)).cached()
+        val mobcaps = MobcapSidebarElement.cached()
+        sidebar.setRows(PlayerSpecificElement.composed(*border, performance, phase, mobcaps) { player ->
+            val components = SidebarComponents.empty()
+
+            val team = player.team
+            if (team != null && !this.teams.isAdminTeam(team) && !this.teams.isSpectatorTeam(team)) {
+                teammates.addTeammates(player, components)
+                components.addRow(SidebarComponent.EMPTY)
+            }
+
+            if (this.players.isAdmin(player)) {
+                components.addRow(performance.get(player))
+                components.addRow(phase.get(player))
+                components.addRow(SidebarComponent.EMPTY)
+                components.addRow(SidebarComponent.withNoScore(
+                    Component.empty().append(SpacingFontResources.spaced(2)).append("Mobcaps:").mini()
+                ))
+                components.addRow(mobcaps.get(player))
+                components.addRow(SidebarComponent.EMPTY)
+            }
+
+            if (components.size() == 0) {
+                components.addRow(SidebarComponent.EMPTY)
+            }
+            border.forEach { components.addRow(it.get(player)) }
+            components.addRow(SidebarComponent.EMPTY)
+        })
+        return sidebar
+    }
+
     private fun updateHUD(player: ServerPlayer) {
         val direction = CommonComponents.direction(Direction.orderedByNearest(player).filter { it.axis != Direction.Axis.Y }[0])
         val position = "(${player.blockX}, ${player.blockY}, ${player.blockZ})"
@@ -854,19 +840,19 @@ class UHCMinigame(
         val mode = this.chat.getChatModeFor(player)
         player.connection.send(ClientboundSetActionBarTextPacket(
             Component.empty().apply {
-                append(ComponentUtils.space(127))
-                append(ComponentUtils.space(shift * 6))
+                append(SpacingFontResources.spaced(26))
+                append(SpacingFontResources.spaced(shift * 6))
                 append(ComponentUtils.negativeWidthOf(mode.name))
-                append(ComponentUtils.space(-11))
+                append(SpacingFontResources.spaced(-11))
                 append(CommonComponents.Hud.EPIC_CHAT_ICON_M54)
-                append(ComponentUtils.space(1))
+                append(SpacingFontResources.spaced(1))
                 append(Component.empty().append(mode.name).withMiniShiftedDownFont(63))
 
-                append(ComponentUtils.space(190))
+                append(SpacingFontResources.spaced(190))
                 append(direction.withMiniShiftedDownFont(54))
                 append(ComponentUtils.negativeWidthOf(direction))
-                append(ComponentUtils.space(-2))
-                append(position.literal().withMiniShiftedDownFont(63))
+                append(SpacingFontResources.spaced(-2))
+                append(Component.literal(position).withMiniShiftedDownFont(63))
             }
         ))
     }
@@ -990,7 +976,7 @@ class UHCMinigame(
             }
         }
 
-        val message = "${target.scoreboardName} has joined team ".literal()
+        val message = Component.literal("${target.scoreboardName} has joined team ")
             .append(team.formattedDisplayName)
             .append(" and has ${if (teleport) "been teleported to a random teammate" else "not been teleported"}")
         return context.source.success(message, true)

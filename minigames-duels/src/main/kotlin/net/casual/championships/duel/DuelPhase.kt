@@ -4,7 +4,6 @@ import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.template.teleporter.EntityTeleporter.Companion.teleport
 import net.casual.arcade.minigame.utils.MinigameUtils.countdown
 import net.casual.arcade.scheduler.GlobalTickedScheduler
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.PlayerUtils.sendTitle
 import net.casual.arcade.utils.TeamUtils.color
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
@@ -15,6 +14,7 @@ import net.casual.championships.common.ui.bossbar.ActiveBossbar
 import net.casual.championships.common.util.CommonComponents
 import net.casual.championships.common.util.CommonStats
 import net.minecraft.ChatFormatting
+import net.minecraft.network.chat.Component
 import net.minecraft.world.level.GameRules
 
 internal const val INITIALIZING_ID = "initializing"
@@ -72,7 +72,7 @@ enum class DuelPhase(
                 val winner = minigame.players.playing.firstOrNull()
                 if (winner != null) {
                     minigame.stats.getOrCreateStat(winner, CommonStats.WON).modify { true }
-                    val named = winner.scoreboardName.literal()
+                    val named = Component.literal(winner.scoreboardName)
                     val team = winner.team
                     if (team != null) {
                         named.color(team)
@@ -84,7 +84,7 @@ enum class DuelPhase(
             }
             if (winner == null) {
                 CasualDuelMod.logger.warn("Couldn't find winner for duel!")
-                winner = "Unknown".literal().withStyle(ChatFormatting.OBFUSCATED)
+                winner = Component.literal("Unknown").withStyle(ChatFormatting.OBFUSCATED)
             }
 
             val title = CommonComponents.GAME_WON.generate(winner)

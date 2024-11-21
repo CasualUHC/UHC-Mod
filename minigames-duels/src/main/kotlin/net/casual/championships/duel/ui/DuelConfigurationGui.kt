@@ -1,9 +1,8 @@
 package net.casual.championships.duel.ui
 
 import eu.pb4.sgui.api.elements.GuiElement
-import net.casual.arcade.utils.ComponentUtils
+import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.ComponentUtils.grey
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.mini
 import net.casual.arcade.utils.ComponentUtils.white
 import net.casual.arcade.utils.ItemUtils.hideTooltip
@@ -33,13 +32,13 @@ class DuelConfigurationGui(
 
     init {
         val settings = DisplayItems.GEAR
-        settings.named("Settings".literal().mini())
+        settings.named(Component.literal("Settings").mini())
         this.setSlot(47, settings) { ->
             DuelSettingsGui(this.player, this.settings, this).open()
         }
 
         val players = ItemStack(CommonItems.FORWARD_FACING_PLAYER_HEAD)
-        players.named("Select Players".literal().mini())
+        players.named(Component.literal("Select Players").mini())
         this.setSlot(51, players) { ->
             DuelPlayerSelectionGui(this.player, this).open()
         }
@@ -53,7 +52,7 @@ class DuelConfigurationGui(
         }
         val waiting = DisplayItems.GREY_TICK
         waiting.named(CommonComponents.CONFIRM.mini())
-        waiting.lore("Select players to start!".literal().grey().mini())
+        waiting.lore(Component.literal("Select players to start!").grey().mini())
         this.waiting = GuiElement(waiting, GuiElement.EMPTY_CALLBACK)
 
         this.setSlot(49, this.waiting)
@@ -63,8 +62,8 @@ class DuelConfigurationGui(
         }
 
         this.title = Component.empty()
-            .append(ComponentUtils.space(-8))
-            .append(CommonComponents.Gui.DUELS.white())
+            .append(SpacingFontResources.spaced(-8))
+            .append(CommonComponents.Gui.DUELS.copy().white())
     }
 
     fun getAvailablePlayers(): List<ServerPlayer> {

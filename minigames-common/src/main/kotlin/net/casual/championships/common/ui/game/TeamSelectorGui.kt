@@ -1,6 +1,6 @@
 package net.casual.championships.common.ui.game
 
-import net.casual.arcade.utils.ComponentUtils
+import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.ComponentUtils.white
 import net.casual.arcade.utils.ItemUtils.hideTooltip
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
@@ -20,8 +20,8 @@ class TeamSelectorGui(
 ): CommonSimpleGui(MenuType.GENERIC_9x6, player, true) {
     init {
         this.title = Component.empty()
-            .append(ComponentUtils.space(-8))
-            .append(CommonComponents.Gui.TEAM_SELECTOR.white())
+            .append(SpacingFontResources.spaced(-8))
+            .append(CommonComponents.Gui.TEAM_SELECTOR.copy().white())
 
         var row = 1
         var column = 1

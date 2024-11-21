@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "feature.RandomCommandMixin",
+    "feature.RateKickingConnectionMixin",
     "feature.ServerGamePacketListenerImplMixin",
     "feature.ServerLevelMixin"
   ],

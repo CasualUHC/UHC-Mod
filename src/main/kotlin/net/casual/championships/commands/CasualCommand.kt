@@ -17,6 +17,8 @@ object CasualCommand: CommandTree {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return Commands.literal("casual").requiresAdminOrPermission().then(
             Commands.literal("team").then(
+                Commands.literal("create").executes(this::createTeams)
+            ).then(
                 Commands.literal("reload").executes(this::reloadTeams)
             )
         ).then(
@@ -52,6 +54,11 @@ object CasualCommand: CommandTree {
                 )
             )
         )
+    }
+
+    private fun createTeams(context: CommandContext<CommandSourceStack>): Int {
+        CasualMinigames.createTeams(context.source.server)
+        return 1
     }
 
     private fun reloadTeams(context: CommandContext<CommandSourceStack>): Int {

@@ -3,6 +3,7 @@ package net.casual.championships.common.ui.elements
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.managers.MinigameTeamManager
 import net.casual.arcade.resources.font.heads.PlayerHeadComponents
+import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.ComponentUtils
 import net.casual.arcade.utils.ComponentUtils.mini
 import net.casual.arcade.utils.TeamUtils.getOnlineCount
@@ -14,7 +15,7 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
 
-class SpectatorAndAdminTeamsElement(
+class SpectatorAndAdminTeamsComponentElement(
     private val minigame: Minigame
 ): UniversalElement<Optional<Component>> {
     override fun get(server: MinecraftServer): Optional<Component> {
@@ -49,7 +50,7 @@ class SpectatorAndAdminTeamsElement(
                 .append(CommonComponents.ADMINS.mini())
                 .append(": ")
                 .append(this.formatPlayerHeads(admins))
-                .append(ComponentUtils.space(spectatorLength - adminLength))
+                .append(SpacingFontResources.spaced(spectatorLength - adminLength))
 
         }
         return Optional.of(component)
@@ -61,7 +62,7 @@ class SpectatorAndAdminTeamsElement(
         for (player in iter) {
             component.append(PlayerHeadComponents.getHeadOrDefault(player))
             if (iter.hasNext()) {
-                component.append(ComponentUtils.space())
+                component.append(SpacingFontResources.spaced(4))
             }
         }
         return component

@@ -10,7 +10,6 @@ import net.casual.arcade.resources.utils.ResourcePackUtils.addLangsFromData
 import net.casual.arcade.resources.utils.ResourcePackUtils.addMissingItemModels
 import net.casual.arcade.resources.utils.ResourcePackUtils.addSounds
 import net.casual.arcade.scheduler.task.utils.TaskRegisties
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.championships.common.items.DisplayItems
 import net.casual.championships.common.level.ReducedMobSpawningRules
 import net.casual.championships.common.task.GlowingBossbarTask
@@ -19,6 +18,7 @@ import net.casual.championships.common.util.*
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.core.Registry
+import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.CreativeModeTab
 import org.slf4j.Logger
@@ -41,7 +41,7 @@ object CommonMod: ModInitializer {
         addFont(CommonComponents.Border)
         addSounds(CommonSounds)
         addMissingItemModels(MOD_ID)
-        packDescription = "Common resources used in CasualChampionships".literal()
+        packDescription = Component.literal("Common resources used in CasualChampionships")
     }
 
     val COMMON_PACKS = listOf(
@@ -50,7 +50,7 @@ object CommonMod: ModInitializer {
         ArcadeResourcePacks.PLAYER_HEADS_PACK,
         ArcadeResourcePacks.HIDE_PLAYER_LIST_HEADS_PACK,
         ArcadeResourcePacks.MINI_MINECRAFT_FONT,
-        ArcadeResourcePacks.SPACES_FONT_PACK,
+        ArcadeResourcePacks.SPACING_FONT_PACK,
         ArcadeResourcePacks.HIDE_PLAYER_LIST_PING_PACK,
         ArcadeResourcePacks.ACTION_BAR_FONT_PACK,
         ArcadeResourcePacks.MINI_ACTION_BAR_FONT_PACK,
@@ -73,7 +73,7 @@ object CommonMod: ModInitializer {
         PolymerItemGroupUtils.registerPolymerItemGroup(
             id("menu"),
             CreativeModeTab.builder(CreativeModeTab.Row.TOP, 7)
-                .title("Display Items".literal())
+                .title(Component.literal("Display Items"))
                 .icon(DisplayItems::TICK)
                 .alignedRight()
                 .displayItems { _, output ->
@@ -84,7 +84,7 @@ object CommonMod: ModInitializer {
         PolymerItemGroupUtils.registerPolymerItemGroup(
             id("heads"),
             CreativeModeTab.builder(CreativeModeTab.Row.TOP, 7)
-                .title("Head Items".literal())
+                .title(Component.literal("Head Items"))
                 .icon(CommonItems.GOLDEN_HEAD::getDefaultInstance)
                 .alignedRight()
                 .displayItems { _, output ->

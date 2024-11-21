@@ -16,6 +16,7 @@ import net.casual.arcade.minigame.lobby.LobbyMinigame
 import net.casual.arcade.minigame.lobby.LobbyPhase
 import net.casual.arcade.minigame.ready.ReadyChecker
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
+import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.settings.MinigameSettings
 import net.casual.arcade.minigame.template.location.LocationTemplate
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
@@ -26,10 +27,10 @@ import net.casual.arcade.utils.ComponentUtils.command
 import net.casual.arcade.utils.ComponentUtils.gold
 import net.casual.arcade.utils.ComponentUtils.green
 import net.casual.arcade.utils.ComponentUtils.lime
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.mini
 import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.ComponentUtils.shadowless
+import net.casual.arcade.utils.ComponentUtils.yellow
 import net.casual.arcade.utils.PlayerUtils.grantAdvancement
 import net.casual.arcade.utils.PlayerUtils.location
 import net.casual.arcade.utils.PlayerUtils.sendSound
@@ -41,17 +42,20 @@ import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.impl.Location
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.casual.arcade.visuals.elements.ComponentElements
-import net.casual.arcade.visuals.elements.SidebarElements
+import net.casual.arcade.visuals.elements.PlayerSpecificElement
 import net.casual.arcade.visuals.elements.UniversalElement
 import net.casual.arcade.visuals.firework.VirtualFirework
+import net.casual.arcade.visuals.sidebar.DynamicSidebar
 import net.casual.arcade.visuals.sidebar.Sidebar
 import net.casual.arcade.visuals.sidebar.SidebarComponent
+import net.casual.arcade.visuals.sidebar.SidebarComponents
 import net.casual.arcade.visuals.tab.PlayerListDisplay
 import net.casual.championships.CasualMod
 import net.casual.championships.common.event.MinesweeperWonEvent
 import net.casual.championships.common.minigame.CasualSettings
 import net.casual.championships.common.minigame.rules.RulesProvider
 import net.casual.championships.common.ui.bossbar.LobbyBossbar
+import net.casual.championships.common.ui.elements.TeammatesSidebarElements
 import net.casual.championships.common.util.CommonComponents
 import net.casual.championships.common.util.CommonSounds
 import net.casual.championships.common.util.CommonUI
@@ -89,7 +93,8 @@ class CasualLobbyMinigame(
     private val podiumTemplate: LocationTemplate,
     private val podiumViewTemplate: LocationTemplate,
     private val fireworksLocations: List<LocationTemplate>,
-    private val duelArenaTemplates: List<DuelArenasTemplate>
+    private val duelArenaTemplates: List<DuelArenasTemplate>,
+    private val factory: CasualLobbyMinigameFactory
 ): LobbyMinigame(server, uuid, area, spawn) {
     override val settings: MinigameSettings = CasualSettings(this)
 
@@ -121,6 +126,10 @@ class CasualLobbyMinigame(
         return teams
     }
 
+    override fun factory(): MinigameFactory {
+        return this.factory
+    }
+
     @Listener
     private fun onInitialize(event: MinigameInitializeEvent) {
         this.registerCommands()
@@ -133,22 +142,7 @@ class CasualLobbyMinigame(
 
         this.setBossbar(LobbyBossbar())
 
-        val name = CasualMinigames.getMinigames().event.name.replace('_', ' ')
-        val sidebar = Sidebar(ComponentElements.of(name.literal().bold().gold().mini()))
-
-        sidebar.addRow(SidebarElements.empty())
-        CommonUI.addTeammates(sidebar, 5, false)
-        sidebar.addRow(SidebarElements.empty())
-        sidebar.addRow(UniversalElement.cached {
-            val online = this.players.onlinePlayerCount
-            SidebarComponent.withCustomScore(" Online: ".literal().mini(), "$online ".literal().red().mini())
-        })
-        sidebar.addRow(UniversalElement.cached {
-            val expected = this.teams.getPlayingTeams().sumOf { it.players.size }
-            SidebarComponent.withCustomScore(" Expected: ".literal().mini(), "$expected ".literal().red().mini())
-        })
-        sidebar.addRow(SidebarElements.empty())
-        this.ui.setSidebar(sidebar)
+        this.ui.setSidebar(this.createSidebar())
     }
 
     @Listener
@@ -162,7 +156,7 @@ class CasualLobbyMinigame(
         if (this.shouldWelcomePlayers) {
             player.setTitleAnimation(stay = 5.Seconds)
             player.sendTitle(
-                Component.empty().append(CommonComponents.Text.WELCOME_TO_CASUAL_CHAMPIONSHIPS.shadowless())
+                CommonComponents.Text.WELCOME_TO_CASUAL_CHAMPIONSHIPS.copy().shadowless()
             )
         }
 
@@ -221,6 +215,12 @@ class CasualLobbyMinigame(
         if (this.bossbar.getRemainingDuration() == 25.Seconds) {
             for (player in this.players) {
                 player.sendSound(CommonSounds.WAITING, SoundSource.MASTER)
+            }
+        }
+
+        if (this.players.onlinePlayerCount > 0) {
+            if (this.uptime.Ticks > 60.Seconds && this.uptime % 30.Seconds.ticks == 0) {
+                CasualMinigames.reloadTeams(event.server)
             }
         }
     }
@@ -470,6 +470,43 @@ class CasualLobbyMinigame(
             }
             firework.sendTo(player)
         }
+    }
+
+    @Suppress("UnstableApiUsage")
+    private fun createSidebar(): Sidebar {
+        val name = CasualMinigames.getMinigames().event.name.replace('_', ' ')
+        val sidebar = DynamicSidebar(ComponentElements.of(
+            Component.literal("Casual Championships").mini().yellow().bold()
+        ))
+        val event = SidebarComponent.withCustomScore(
+            Component.literal(" Event:").mini().red().bold(),
+            Component.literal("$name ").mini().gold()
+        )
+
+        val teammates = TeammatesSidebarElements(Component.literal(" "), Component.literal(" "), false)
+        val players = UniversalElement.cached {
+            val online = this.players.playingPlayerCount
+            val expected = it.playerList.whiteListNames.size
+            SidebarComponent.withCustomScore(
+                Component.literal(" Players: ").mini().lime().bold(),
+                Component.literal("$online/$expected ").mini().yellow()
+            )
+        }
+        sidebar.setRows(PlayerSpecificElement.composed(players) { player ->
+            val components = SidebarComponents.of(SidebarComponent.EMPTY)
+            components.addRow(event)
+            components.addRow(SidebarComponent.EMPTY)
+
+            val team = player.team
+            if (team != null && !this.teams.isTeamIgnored(team)) {
+                teammates.addTeammates(player, components)
+                components.addRow(SidebarComponent.EMPTY)
+            }
+
+            components.addRow(players.get(player))
+                .addRow(SidebarComponent.EMPTY)
+        })
+        return sidebar
     }
 
     companion object {

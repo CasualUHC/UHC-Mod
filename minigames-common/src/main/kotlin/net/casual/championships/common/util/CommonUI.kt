@@ -3,32 +3,26 @@ package net.casual.championships.common.util
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.chat.ChatFormatter
 import net.casual.arcade.minigame.managers.MinigameChatManager
-import net.casual.arcade.utils.ComponentUtils
+import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.ComponentUtils.bold
 import net.casual.arcade.utils.ComponentUtils.gold
 import net.casual.arcade.utils.ComponentUtils.lime
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.mini
-import net.casual.arcade.utils.PlayerUtils.distanceToNearestBorder
 import net.casual.arcade.utils.PlayerUtils.sendSound
 import net.casual.arcade.utils.TeamUtils.getHexColor
 import net.casual.arcade.utils.impl.Sound
 import net.casual.arcade.visuals.elements.ComponentElements
-import net.casual.arcade.visuals.elements.LevelSpecificElement
 import net.casual.arcade.visuals.elements.PlayerSpecificElement
-import net.casual.arcade.visuals.elements.SidebarElements
 import net.casual.arcade.visuals.nametag.PlayerNameTag
 import net.casual.arcade.visuals.predicate.EntityObserverPredicate
 import net.casual.arcade.visuals.predicate.PlayerObserverPredicate
 import net.casual.arcade.visuals.predicate.PlayerObserverPredicate.Companion.toPlayer
 import net.casual.arcade.visuals.screen.PlayerInventoryViewGui
-import net.casual.arcade.visuals.sidebar.Sidebar
 import net.casual.arcade.visuals.sidebar.SidebarComponent
 import net.casual.arcade.visuals.tab.PlayerListDisplay
 import net.casual.championships.common.items.DisplayItems
 import net.casual.championships.common.ui.CasualPlayerInventoryViewGui
-import net.casual.championships.common.ui.elements.SpectatorAndAdminTeamsElement
-import net.casual.championships.common.ui.elements.TeammateElement
+import net.casual.championships.common.ui.elements.*
 import net.casual.championships.common.ui.game.TeamSelectorGui
 import net.casual.championships.common.ui.tab.CasualPlayerListEntries
 import net.casual.championships.common.ui.tab.SimpleCasualPlayerListEntries
@@ -41,7 +35,6 @@ import net.minecraft.core.component.DataComponents
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.component.DyedItemColor
-import net.minecraft.world.level.border.BorderStatus
 
 object CommonUI {
     val INFO_ANNOUNCEMENT = ChatFormatter.createAnnouncement(Component.literal("[Info]").gold().bold().mini())
@@ -86,54 +79,18 @@ object CommonUI {
         predicate: PlayerObserverPredicate = CommonPredicates.VISIBLE_OBSERVER_AND_SPEC_OR_TEAMMATES
     ): PlayerNameTag {
         return PlayerNameTag(
-            { String.format("%.1f ", it.health / 2).literal().append(CommonComponents.Hud.HARDCORE_HEART) },
+            { Component.literal(String.format("%.1f ", it.health / 2)).append(CommonComponents.Hud.HARDCORE_HEART) },
             predicate
         )
     }
 
-    fun addTeammates(sidebar: Sidebar, size: Int, isGame: Boolean = true): Sidebar {
-        val buffer = ComponentUtils.space()
-        val unavailable = if (isGame) CommonComponents.Hud.UNAVAILABLE else Component.empty()
-        val teammates = Component.empty().append(buffer).append(CommonComponents.TEAMMATES.mini())
-        sidebar.addRow(SidebarElements.withNoScore(teammates))
-        for (i in 0 until size) {
-            sidebar.addRow(TeammateElement(i, buffer, unavailable))
-        }
-        return sidebar
-    }
-
-    fun addBorderDistanceAndRadius(sidebar: Sidebar) {
-        val buffer = ComponentUtils.space()
-        sidebar.addRow(LevelSpecificElement.cached { level ->
-            val phase = ((level.server.tickCount / 3) % 5) + 1
-            val border = when (level.worldBorder.status) {
-                BorderStatus.SHRINKING -> CommonComponents.Border.red(phase)
-                BorderStatus.GROWING -> CommonComponents.Border.green(phase)
-                else -> CommonComponents.Border.blue(phase)
-            }
-            val display = Component.empty()
-                .append(buffer)
-                .append(border)
-                .append(ComponentUtils.space())
-                .append(CommonComponents.BORDER_INFO.mini())
-            SidebarComponent.withNoScore(display)
-        })
-        sidebar.addRow { player ->
-            val vectorToBorder = player.distanceToNearestBorder()
-            val multiplier = if (vectorToBorder.x < 0 || vectorToBorder.z < 0) -1 else 1
-            val distanceToBorder = multiplier * vectorToBorder.length().toInt()
-
-            val percent = distanceToBorder / (player.level().worldBorder.size / 2.0)
-            val colour = if (percent > 0.4) DARK_GREEN else if (percent > 0.2) YELLOW else if (percent > 0.1) RED else DARK_RED
-            val display = Component.empty().append(buffer).append(" ").append(CommonComponents.BORDER_DISTANCE.mini())
-            val score = distanceToBorder.toString().literal().append(buffer).withStyle(colour)
-            SidebarComponent.withCustomScore(display, score.mini())
-        }
-        sidebar.addRow(LevelSpecificElement.cached { level ->
-            val display = Component.empty().append(buffer).append(" ").append(CommonComponents.BORDER_RADIUS.mini())
-            val score = (level.worldBorder.size / 2.0).toInt().toString().literal().append(buffer)
-            SidebarComponent.withCustomScore(display, score.mini())
-        })
+    fun getBorderSidebarElements(): Array<PlayerSpecificElement<SidebarComponent>> {
+        val buffer = SpacingFontResources.spaced(4)
+        return arrayOf(
+            BorderStatusElement(buffer).cached(),
+            BorderDistanceElement(buffer),
+            BorderSizeElement(buffer).cached()
+        )
     }
 
     fun createTeamMinigameTabDisplay(minigame: Minigame): PlayerListDisplay {
@@ -151,10 +108,10 @@ object CommonUI {
     fun addCasualFooterAndHeader(minigame: Minigame, display: PlayerListDisplay) {
         val hostedByKiwiTech = Component.empty()
             .append(SERVER_HOSTED_BY)
-            .append(ComponentUtils.space())
+            .append(SpacingFontResources.spaced(4))
             .append(KIWITECH)
 
-        val baseFooter = PlayerSpecificElement<Component> { player ->
+        val baseFooter = PlayerSpecificElement { player ->
             val ping = player.connection.latency()
             val colour = when {
                 ping < 80 -> DARK_GREEN
@@ -170,12 +127,12 @@ object CommonUI {
                 .append(hostedByKiwiTech)
         }
 
-        val spectatorAndAdmins = SpectatorAndAdminTeamsElement(minigame).cached()
+        val spectatorAndAdmins = SpectatorAndAdminTeamsComponentElement(minigame).cached()
         val footer = spectatorAndAdmins.merge<_, Component>(baseFooter) { a, b ->
             a.map { Component.empty().append(it).append("\n\n") }.orElse(Component.empty()).append(b)
         }
         display.setDisplay(
-            ComponentElements.of("\n".literal().append(CASUAL).append(" ").append(CHAMPIONSHIPS).append("\n")),
+            ComponentElements.of(Component.literal("\n").append(CASUAL).append(" ").append(CHAMPIONSHIPS).append("\n")),
             footer
         )
     }

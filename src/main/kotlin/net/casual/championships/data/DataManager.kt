@@ -12,6 +12,8 @@ interface DataManager {
 
     fun createTeams(server: MinecraftServer): CompletableFuture<Collection<PlayerTeam>>
 
+    fun reloadTeams(server: MinecraftServer): CompletableFuture<Void>
+
     fun syncUHCData(uhc: UHCMinigame)
 
     fun syncDuelData(duel: DuelMinigame)

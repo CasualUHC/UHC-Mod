@@ -24,6 +24,7 @@ import net.minecraft.world.scores.PlayerTeam
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.CompletableFuture
+import kotlin.io.path.outputStream
 
 object CasualResourcePackHost {
     private val packs = CasualConfig.resolve("packs")
@@ -84,7 +85,9 @@ object CasualResourcePackHost {
     }
 
     internal fun reload(): CompletableFuture<Void> {
-        return this.host.reload()
+        return this.host.reload().thenAcceptAsync {
+            it.forEach(this::cachePackForReplay)
+        }
     }
 
     internal fun registerEvents() {
@@ -104,15 +107,20 @@ object CasualResourcePackHost {
 
     private fun host(creator: NamedResourcePackCreator): HostedPackRef {
         val ref = this.host.addPack(this.generated, creator)
-        ref.future.thenApply { pack ->
-            try {
-                @Suppress("DEPRECATION")
-                val pathHash = Hashing.sha1().hashString(pack.url, StandardCharsets.UTF_8).toString()
-                creator.getCreator().build(ReplayConfig.root.resolve("packs").resolve(pathHash))
-            } catch (e: IOException) {
-                CasualMod.logger.error("Failed to cache pack for replays", e)
-            }
-        }
+        ref.future.thenApply(this::cachePackForReplay)
         return ref
+    }
+
+    private fun cachePackForReplay(hosted: HostedPack) {
+        try {
+            @Suppress("DEPRECATION")
+            val pathHash = Hashing.sha1().hashString(hosted.url, StandardCharsets.UTF_8).toString()
+            val path = ReplayConfig.root.resolve("packs").resolve(pathHash)
+            path.outputStream().use {
+                hosted.pack.stream().transferTo(it)
+            }
+        } catch (e: IOException) {
+            CasualMod.logger.error("Failed to cache pack for replays", e)
+        }
     }
 }

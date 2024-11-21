@@ -68,6 +68,21 @@ class DatabaseDataManager(
         return future
     }
 
+    override fun reloadTeams(server: MinecraftServer): CompletableFuture<Void> {
+        val future = CompletableFuture<Void>()
+        val scoreboard = server.scoreboard
+        this.asyncTransaction {
+            val teams = this.database.getDiscordTeams().map { it to it.players.toList() }
+            server.execute {
+                for ((team, players) in teams) {
+                    this.reloadTeam(team, players, scoreboard)
+                }
+                future.complete(null)
+            }
+        }
+        return future
+    }
+
     override fun syncUHCData(uhc: UHCMinigame) {
         val participants = uhc.players.allProfiles.map {
             uhc.server.scoreboard.getPlayersTeam(it.name) to it
@@ -256,6 +271,20 @@ class DatabaseDataManager(
         team.isAllowFriendlyFire = false
         team.collisionRule = Team.CollisionRule.ALWAYS
         return team
+    }
+
+    private fun reloadTeam(discordTeam: DiscordTeam, players: List<DiscordPlayer>, scoreboard: Scoreboard) {
+        val team = scoreboard.getPlayerTeam(discordTeam.name)
+        if (team == null) {
+            CasualMod.logger.error("Failed to reload team ${discordTeam.name}, no such team available")
+            return
+        }
+        for (player in team.players.toList()) {
+            scoreboard.removePlayerFromTeam(player, team)
+        }
+        for (player in players) {
+            scoreboard.addPlayerToTeam(player.name, team)
+        }
     }
 
     private fun createEvent(eventName: String): Event {

@@ -3,9 +3,9 @@ package net.casual.championships.uhc
 import net.casual.arcade.resources.creator.NamedResourcePackCreator
 import net.casual.arcade.resources.utils.ResourcePackUtils.addFont
 import net.casual.arcade.resources.utils.ResourcePackUtils.addLangsFromData
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
+import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -21,7 +21,7 @@ object UHCMod: ModInitializer {
         addAssetSource(MOD_ID)
         addLangsFromData(MOD_ID)
         addFont(UHCComponents.Bitmap)
-        packDescription = "Resources for CasualChampionships UHC minigame".literal()
+        packDescription = Component.literal("Resources for CasualChampionships UHC minigame")
     }
 
     override fun onInitialize() {

@@ -1,7 +1,8 @@
 package net.casual.championships.common.util
 
 import net.casual.arcade.resources.font.FontResources
-import net.casual.arcade.resources.font.IndexedBitmapFontResources
+import net.casual.arcade.resources.font.IndexedFontResources
+import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.ComponentUtils
 import net.casual.arcade.utils.ComponentUtils.crimson
 import net.casual.arcade.utils.ComponentUtils.lime
@@ -10,7 +11,7 @@ import net.casual.arcade.utils.ComponentUtils.shadowless
 import net.casual.arcade.utils.ComponentUtils.translatable
 import net.casual.arcade.utils.ComponentUtils.translatableWithArgs
 import net.casual.arcade.utils.ComponentUtils.white
-import net.casual.arcade.utils.ComponentUtils.withSpacesFont
+import net.casual.arcade.utils.ComponentUtils.withSpacingFont
 import net.casual.championships.common.CommonMod
 import net.minecraft.core.Direction
 import net.minecraft.core.Direction8
@@ -105,15 +106,15 @@ object CommonComponents {
 
     fun backgrounded(
         generator: ComponentUtils.ComponentGenerator,
-        background: MutableComponent,
+        background: Component,
         modifier: (MutableComponent.() -> Unit)? = null
     ): ComponentUtils.ComponentGenerator {
         val key = ComponentUtils.getTranslationKeyOf(generator.generate())
         return ComponentUtils.ComponentGenerator {
             Component.empty().apply {
-                append(Component.translatable("$key.space.1").withSpacesFont())
-                append(background.shadowless())
-                append(Component.translatable("$key.space.2").withSpacesFont())
+                append(Component.translatable("$key.space.1").withSpacingFont())
+                append(background.copy().shadowless())
+                append(Component.translatable("$key.space.2").withSpacingFont())
                 val component = generator.generate(*it)
                 modifier?.invoke(component)
                 append(component)
@@ -145,75 +146,75 @@ object CommonComponents {
     }
 
     object Gui: FontResources(CommonMod.id("gui_font")) {
-        val GENERIC_54 by bitmap(at("gui/generic_54.png"), 13, 256)
-        val TEAM_SELECTOR by bitmap(at("gui/team_selector.png"), 13, 256)
-        val TEAM_PLAYER_SELECTOR by bitmap(at("gui/team_player_selector.png"), 13, 256)
-        val PLAYER_SELECTOR by bitmap(at("gui/player_selector.png"), 13, 256)
+        val GENERIC_54 = bitmap(at("gui/generic_54.png"), 13, 256)
+        val TEAM_SELECTOR = bitmap(at("gui/team_selector.png"), 13, 256)
+        val TEAM_PLAYER_SELECTOR = bitmap(at("gui/team_player_selector.png"), 13, 256)
+        val PLAYER_SELECTOR = bitmap(at("gui/player_selector.png"), 13, 256)
 
-        val DUELS by bitmap(at("gui/duels_menu.png"), 13, 256)
-        val DUEL_SETTINGS by bitmap(at("gui/duels_settings_menu.png"), 13, 256)
+        val DUELS = bitmap(at("gui/duels_menu.png"), 13, 256)
+        val DUEL_SETTINGS = bitmap(at("gui/duels_settings_menu.png"), 13, 256)
 
-        val MINESWEEPER_MENU by bitmap(at("gui/minesweeper_menu.png"), 19, 227)
+        val MINESWEEPER_MENU = bitmap(at("gui/minesweeper_menu.png"), 19, 227)
 
         @JvmStatic
         fun createDoubleChestGui(title: Component): MutableComponent {
             return Component.empty()
-                .append(ComponentUtils.space(-8))
-                .append(GENERIC_54.white())
-                .append(ComponentUtils.space(-169))
+                .append(SpacingFontResources.spaced(-8))
+                .append(GENERIC_54.copy().white())
+                .append(SpacingFontResources.spaced(-169))
                 .append(title)
         }
     }
 
     object Hud: FontResources(CommonMod.id("hud_font")) {
-        val BACKGROUND_240 by bitmap(at("backgrounds/background240.png"), 10, 12)
-        val BACKGROUND_180 by bitmap(at("backgrounds/background180.png"), 10, 12)
-        val BACKGROUND_120 by bitmap(at("backgrounds/background120.png"), 10, 12)
-        val BACKGROUND_40 by bitmap(at("backgrounds/background40.png"), 10, 12)
-        val HARDCORE_HEART by bitmap(at("hud/hardcore_heart.png"), 7, 7)
-        val NO_CONNECTION by bitmap(at("hud/no_connection.png"), 7, 7)
-        val UNAVAILABLE by bitmap(at("hud/cross.png"), 7, 7)
-        val KILLS_COUNT by bitmap(at("hud/kills.png"), 8, 8)
-        val PLAYER_COUNT by bitmap(at("hud/players.png"), 8, 8)
-        val EPIC_CHAT_ICON by bitmap(at("hud/epic_chat_icon.png"), 7, 7)
-        val EPIC_CHAT_ICON_M54 by bitmap(at("hud/epic_chat_icon.png"), -56, 7)
+        val BACKGROUND_240 = bitmap(at("backgrounds/background240.png"), 10, 12)
+        val BACKGROUND_180 = bitmap(at("backgrounds/background180.png"), 10, 12)
+        val BACKGROUND_120 = bitmap(at("backgrounds/background120.png"), 10, 12)
+        val BACKGROUND_40 = bitmap(at("backgrounds/background40.png"), 10, 12)
+        val HARDCORE_HEART = bitmap(at("hud/hardcore_heart.png"), 7, 7)
+        val NO_CONNECTION = bitmap(at("hud/no_connection.png"), 7, 7)
+        val UNAVAILABLE = bitmap(at("hud/cross.png"), 7, 7)
+        val KILLS_COUNT = bitmap(at("hud/kills.png"), 8, 8)
+        val PLAYER_COUNT = bitmap(at("hud/players.png"), 8, 8)
+        val EPIC_CHAT_ICON = bitmap(at("hud/epic_chat_icon.png"), 7, 7)
+        val EPIC_CHAT_ICON_M54 = bitmap(at("hud/epic_chat_icon.png"), -56, 7)
     }
 
     object Text: FontResources(CommonMod.id("text_font")) {
-        val CASUAL by bitmap(at("text/casual.png"), 8, 9)
-        val CHAMPIONSHIPS by bitmap(at("text/championships.png"), 8, 9)
+        val CASUAL = bitmap(at("text/casual.png"), 8, 9)
+        val CHAMPIONSHIPS = bitmap(at("text/championships.png"), 8, 9)
 
-        val SERVER_HOSTED_BY by bitmap(at("text/server_hosted_by.png"), 8, 9)
-        val KIWITECH by bitmap(at("text/kiwitech.png"), 8, 9)
+        val SERVER_HOSTED_BY = bitmap(at("text/server_hosted_by.png"), 8, 9)
+        val KIWITECH = bitmap(at("text/kiwitech.png"), 8, 9)
 
-        val WELCOME_TO_CASUAL_CHAMPIONSHIPS by bitmap(at("text/welcome_to_casual_championships.png"), 6, 16)
+        val WELCOME_TO_CASUAL_CHAMPIONSHIPS = bitmap(at("text/welcome_to_casual_championships.png"), 6, 16)
     }
 
-    object Border: IndexedBitmapFontResources(CommonMod.id("border_font")) {
-        val BORDER_DISTANCE by bitmap(at("border/border_distance.png"), 8, 8)
-        val BORDER_RADIUS by bitmap(at("border/border_radius.png"), 8, 8)
+    object Border: IndexedFontResources(CommonMod.id("border_font")) {
+        val BORDER_DISTANCE = bitmap(at("border/border_distance.png"), 8, 8)
+        val BORDER_RADIUS = bitmap(at("border/border_radius.png"), 8, 8)
 
         init {
             for (i in 1..5) {
-                indexed(at("border/blue_border_$i.png"), 8, 8)
+                indexed { bitmap(at("border/blue_border_$i.png"), 8, 8) }
             }
             for (i in 1..5) {
-                indexed(at("border/red_border_$i.png"), 8, 8)
+                indexed { bitmap(at("border/red_border_$i.png"), 8, 8) }
             }
             for (i in 1..5) {
-                indexed(at("border/green_border_$i.png"), 8, 8)
+                indexed { bitmap(at("border/green_border_$i.png"), 8, 8) }
             }
         }
 
-        fun blue(index: Int): MutableComponent {
+        fun blue(index: Int): Component {
             return this.get(index - 1)
         }
 
-        fun red(index: Int): MutableComponent {
+        fun red(index: Int): Component {
             return this.get(index + 4)
         }
 
-        fun green(index: Int): MutableComponent {
+        fun green(index: Int): Component {
             return this.get(index + 9)
         }
     }

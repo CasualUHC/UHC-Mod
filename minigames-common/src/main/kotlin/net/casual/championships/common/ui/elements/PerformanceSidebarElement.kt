@@ -8,10 +8,10 @@ import net.casual.arcade.visuals.sidebar.SidebarComponent
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 
-object PerformanceElement: UniversalElement<SidebarComponent> {
+class PerformanceSidebarElement(private val buffer: Component): UniversalElement<SidebarComponent> {
     override fun get(server: MinecraftServer): SidebarComponent {
-        val tps = Component.empty().append("  ").append(TPSComponentElement.get(server)).mini()
-        val mspt = Component.empty().append(MSPTComponentElement.get(server)).append("  ").mini()
+        val tps = Component.empty().append(this.buffer).append(TPSComponentElement.get(server)).mini()
+        val mspt = Component.empty().append(MSPTComponentElement.get(server)).append(this.buffer).mini()
         return SidebarComponent.withCustomScore(tps, mspt)
     }
 }

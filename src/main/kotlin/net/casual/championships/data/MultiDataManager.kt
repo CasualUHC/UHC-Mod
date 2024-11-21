@@ -21,6 +21,10 @@ class MultiDataManager(
             .thenApply { merged -> merged.flatten() }
     }
 
+    override fun reloadTeams(server: MinecraftServer): CompletableFuture<Void> {
+        return CompletableFuture.allOf(*this.managers.map { it.reloadTeams(server) }.toTypedArray())
+    }
+
     override fun syncUHCData(uhc: UHCMinigame) {
         for (manager in this.managers) {
             manager.syncUHCData(uhc)
