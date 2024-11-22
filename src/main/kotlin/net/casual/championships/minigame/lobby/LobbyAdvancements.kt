@@ -4,6 +4,7 @@ import net.casual.arcade.utils.AdvancementUtils.setTitleAndDesc
 import net.casual.arcade.utils.ItemUtils
 import net.casual.arcade.utils.advancement.AdvancementCollection
 import net.casual.championships.CasualMod
+import net.casual.championships.common.items.MinesweeperItems
 import net.minecraft.advancements.AdvancementType
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.Items
@@ -65,7 +66,7 @@ object LobbyAdvancements: AdvancementCollection() {
     val GAMER = register {
         parent(ROOT)
         id = CasualMod.id("gamer")
-        display(ItemUtils.createPlayerHead("senseiwells"))
+        display(MinesweeperItems.FLAG_COUNTER)
         setTitleAndDesc("lobby.advancements.gamer")
         toast()
         announce()

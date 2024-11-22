@@ -20,12 +20,9 @@ import net.minecraft.util.Mth
 import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
-import java.text.DecimalFormat
 import java.util.*
 import kotlin.math.floor
 import kotlin.time.Duration.Companion.nanoseconds
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.DurationUnit
 import net.minecraft.world.inventory.ClickType as ClickAction
 
 class MinesweeperGui(
@@ -142,14 +139,6 @@ class MinesweeperGui(
         this.complete = true
         val time = (System.nanoTime() - grid.startTime).nanoseconds
         GlobalEventHandler.broadcast(MinesweeperWonEvent(player, time))
-
-        val formatted = FORMAT.format(time.toDouble(DurationUnit.SECONDS))
-        player.sendSystemMessage(CommonComponents.MINESWEEPER_WON.generate(formatted))
-        if (time < record) {
-            record = time
-            val message = CommonComponents.MINESWEEPER_RECORD.generate(player.scoreboardName, formatted)
-            player.server.playerList.broadcastSystemMessage(message, false)
-        }
     }
 
     private fun onLose(player: ServerPlayer) {
@@ -280,9 +269,5 @@ class MinesweeperGui(
         private val DESC_TILE_3 = Items.OAK_SIGN.named(CommonComponents.MINESWEEPER_DESC_3)
         private val DESC_TILE_4 = Items.OAK_SIGN.named(CommonComponents.MINESWEEPER_DESC_4)
         private val PLAY_AGAIN_TILE = DisplayItems.GREEN_LONG_RIGHT.named(CommonComponents.MINESWEEPER_PLAY_AGAIN)
-
-        private val FORMAT = DecimalFormat("#.00")
-
-        private var record = 127.0.seconds
     }
 }

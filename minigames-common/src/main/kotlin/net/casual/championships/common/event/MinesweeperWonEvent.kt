@@ -4,7 +4,7 @@ import net.casual.arcade.events.player.PlayerEvent
 import net.minecraft.server.level.ServerPlayer
 import kotlin.time.Duration
 
-class MinesweeperWonEvent(
+data class MinesweeperWonEvent(
     override val player: ServerPlayer,
     val time: Duration
 ): PlayerEvent

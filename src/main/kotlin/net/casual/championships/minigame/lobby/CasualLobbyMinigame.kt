@@ -5,8 +5,7 @@ import com.mojang.brigadier.Command
 import com.mojang.brigadier.context.CommandContext
 import it.unimi.dsi.fastutil.ints.IntList
 import net.casual.arcade.commands.*
-import net.casual.arcade.events.player.PlayerFallEvent
-import net.casual.arcade.events.player.PlayerTeamJoinEvent
+import net.casual.arcade.events.player.*
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.area.PlaceableArea
@@ -18,6 +17,8 @@ import net.casual.arcade.minigame.ready.ReadyChecker
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.settings.MinigameSettings
+import net.casual.arcade.minigame.stats.Stat.Companion.increment
+import net.casual.arcade.minigame.stats.StatType
 import net.casual.arcade.minigame.template.location.LocationTemplate
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
 import net.casual.arcade.resources.utils.ResourcePackUtils.afterPacksLoad
@@ -37,6 +38,7 @@ import net.casual.arcade.utils.PlayerUtils.sendSound
 import net.casual.arcade.utils.PlayerUtils.sendTitle
 import net.casual.arcade.utils.PlayerUtils.setTitleAnimation
 import net.casual.arcade.utils.PlayerUtils.teleportTo
+import net.casual.arcade.utils.TimeUtils.Minutes
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.impl.Location
@@ -81,9 +83,11 @@ import net.minecraft.world.level.GameType
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.Team
+import java.text.DecimalFormat
 import java.util.*
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.DurationUnit
 
 class CasualLobbyMinigame(
     server: MinecraftServer,
@@ -101,6 +105,8 @@ class CasualLobbyMinigame(
     private val duels = ArrayList<DuelMinigame>()
     private val hasSeenFireworks = HashSet<UUID>()
     private var shouldWelcomePlayers = true
+
+    private var minesweeperRecord = 127 * 1_000
 
     override val id: ResourceLocation = ID
 
@@ -130,7 +136,7 @@ class CasualLobbyMinigame(
         return this.factory
     }
 
-    @Listener
+    @Listener(priority = 1100)
     private fun onInitialize(event: MinigameInitializeEvent) {
         this.registerCommands()
 
@@ -143,6 +149,8 @@ class CasualLobbyMinigame(
         this.setBossbar(LobbyBossbar())
 
         this.ui.setSidebar(this.createSidebar())
+
+        this.settings.canAttackEntities.set(true)
     }
 
     @Listener
@@ -226,6 +234,34 @@ class CasualLobbyMinigame(
     }
 
     @Listener
+    private fun onPlayerTick(event: PlayerTickEvent) {
+        val player = event.player
+        val stat = this.stats.getOrCreateStat(player, MINESWEEPER_RECORD_STAT)
+        val ticks = this.stats.getOrCreateStat(player, MINESWEEPER_RECORD_TICKS_STAT)
+        if (stat.value == this.minesweeperRecord) {
+            ticks.increment()
+            if (ticks.value.Ticks >= 10.Minutes) {
+                player.grantAdvancement(LobbyAdvancements.GAMER)
+            }
+        } else {
+            ticks.modify { 0 }
+        }
+    }
+
+    @Listener
+    private fun onPlayerAttack(event: PlayerTryAttackEvent) {
+        val (player, target) = event
+        if (target is ServerPlayer && this.players.isAdmin(target)) {
+            val stat = this.stats.getOrCreateStat(player, ATTACK_ADMIN_STAT)
+            stat.increment()
+            if (stat.value >= 50) {
+                player.grantAdvancement(LobbyAdvancements.ADMIN_ABUSE)
+            }
+        }
+        event.cancel()
+    }
+
+    @Listener
     private fun onPhaseSet(event: MinigameSetPhaseEvent) {
         if (event.phase >= LobbyPhase.Readying) {
             for (duel in ImmutableList.copyOf(this.duels)) {
@@ -238,13 +274,33 @@ class CasualLobbyMinigame(
     private fun onPlayerFall(event: PlayerFallEvent) {
         if (!AABB.of(this.area.getBoundingBox()).intersects(event.player.boundingBox)) {
             event.player.grantAdvancement(LobbyAdvancements.UH_OH)
+            val stat = this.stats.getOrCreateStat(event.player, LEFT_LOBBY_STAT)
+            stat.increment()
+            if (stat.value >= 20) {
+                event.player.grantAdvancement(LobbyAdvancements.YOU_SHALL_NOT_LEAVE)
+            }
         }
     }
 
     @Listener
     private fun onMinesweeperWon(event: MinesweeperWonEvent) {
-        if (event.time < 40.seconds) {
+        val (player, duration) = event
+        if (duration < 40.seconds) {
             event.player.grantAdvancement(LobbyAdvancements.OFFICIALLY_BORED)
+        }
+
+        val millis = duration.inWholeMilliseconds.toInt()
+        val stat = this.stats.getOrCreateStat(player, MINESWEEPER_RECORD_STAT)
+        if (millis < stat.value) {
+            stat.modify { millis }
+        }
+
+        val formatted = FORMAT.format(duration.toDouble(DurationUnit.SECONDS))
+        player.sendSystemMessage(CommonComponents.MINESWEEPER_WON.generate(formatted))
+        if (millis < this.minesweeperRecord) {
+            this.minesweeperRecord = millis
+            val message = CommonComponents.MINESWEEPER_RECORD.generate(player.scoreboardName, formatted)
+            this.chat.broadcast(message)
         }
     }
 
@@ -389,6 +445,7 @@ class CasualLobbyMinigame(
         }
         if (!this.players.has(initiator) || this.phase >= LobbyPhase.Readying) {
             requester.broadcastTo(Component.translatable("casual.duel.cannotDuelNow").mini().red(), initiator)
+            initiator.grantAdvancement(LobbyAdvancements.NOT_NOW)
             return false
         }
 
@@ -484,9 +541,11 @@ class CasualLobbyMinigame(
         )
 
         val teammates = TeammatesSidebarElements(Component.literal(" "), Component.literal(" "), false)
-        val players = UniversalElement.cached {
+        val players = UniversalElement.cached { server ->
             val online = this.players.playingPlayerCount
-            val expected = it.playerList.whiteListNames.size
+            val expected = server.scoreboard.playerTeams.filter {
+                !this.teams.isTeamIgnored(it)
+            }.sumOf { it.players.size }
             SidebarComponent.withCustomScore(
                 Component.literal(" Players: ").mini().lime().bold(),
                 Component.literal("$online/$expected ").mini().yellow()
@@ -514,6 +573,13 @@ class CasualLobbyMinigame(
         private val FADE = IntList.of(0xde324c, 0xf4895f, 0xf8e16f, 0x95cf92, 0x369acc, 0x9656a2)
 
         private val SHAPES = listOf(Shape.LARGE_BALL, Shape.STAR, Shape.BURST)
+
+        private val MINESWEEPER_RECORD_STAT = StatType.int32(CasualMod.id("minesweeper_record"), Int.MAX_VALUE)
+        private val MINESWEEPER_RECORD_TICKS_STAT = StatType.int32(CasualMod.id("minesweeper_record_ticks"))
+        private val LEFT_LOBBY_STAT = StatType.int32(CasualMod.id("left_lobby"))
+        private val ATTACK_ADMIN_STAT = StatType.int32(CasualMod.id("attack_admin"))
+
+        private val FORMAT = DecimalFormat("#.00")
 
         val ID = CasualMod.id("lobby")
     }
