@@ -5,6 +5,7 @@ import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.ComponentUtils.bold
 import net.casual.arcade.utils.ComponentUtils.italicise
 import net.casual.arcade.utils.ComponentUtils.mini
+import net.casual.arcade.utils.ComponentUtils.wrap
 import net.casual.arcade.utils.PlayerUtils.isSurvival
 import net.casual.arcade.utils.PlayerUtils.player
 import net.casual.arcade.utils.TeamUtils.color
@@ -51,13 +52,13 @@ class TeammatesSidebarElements(
             .append(" ")
             .append(Component.literal(username).mini().color(team))
         val teammate = server.player(username)
-            ?: return SidebarComponent.withCustomScore(formatted, CommonComponents.Hud.NO_CONNECTION.copy().append(this.buffer))
+            ?: return SidebarComponent.withCustomScore(formatted, CommonComponents.Hud.NO_CONNECTION.wrap().append(this.buffer))
 
         if (!this.health) {
             return SidebarComponent.withCustomScore(formatted.append(this.buffer), Component.empty())
         }
         if (!teammate.isSurvival || !teammate.isAlive) {
-            return SidebarComponent.withCustomScore(formatted, CommonComponents.Hud.UNAVAILABLE.copy().append(this.buffer))
+            return SidebarComponent.withCustomScore(formatted, CommonComponents.Hud.UNAVAILABLE.wrap().append(this.buffer))
         }
         val health = " %04.1f".format(teammate.health / 2.0)
         val score = Component.literal(health).mini().append(SpacingFontResources.spaced(1)).append(CommonComponents.Hud.HARDCORE_HEART)

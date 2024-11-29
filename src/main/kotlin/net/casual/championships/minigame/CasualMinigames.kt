@@ -398,6 +398,9 @@ object CasualMinigames {
                     added.add(participant.name)
                 }
             }
+            if (added.isEmpty() && removed.isEmpty()) {
+                return@thenApplyAsync
+            }
             val component = Component.literal("Reloaded whitelist.")
             if (added.isNotEmpty()) {
                 component.append(Component.literal("\nAdded: ").green()).append(added.joinToString { it })

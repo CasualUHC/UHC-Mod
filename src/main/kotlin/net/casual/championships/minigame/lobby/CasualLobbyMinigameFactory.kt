@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.dimensions.level.LevelPersistence
-import net.casual.arcade.dimensions.utils.addCustomLevel
+import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
 import net.casual.arcade.dimensions.utils.impl.VoidChunkGenerator
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
@@ -41,7 +41,7 @@ class CasualLobbyMinigameFactory(
     }
 
     override fun create(context: MinigameCreationContext): CasualLobbyMinigame {
-        val level = context.server.addCustomLevel {
+        val level = CustomLevelBuilder.build(context.server) {
             randomDimensionKey()
             dimensionType(BuiltinDimensionTypes.OVERWORLD)
             chunkGenerator(VoidChunkGenerator(context.server, biome))
