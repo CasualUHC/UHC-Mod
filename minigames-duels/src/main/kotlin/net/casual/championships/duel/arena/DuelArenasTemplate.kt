@@ -2,21 +2,20 @@ package net.casual.championships.duel.arena
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.casual.championships.common.arena.ArenaTemplate
 import net.minecraft.world.item.ItemStack
 
 class DuelArenasTemplate(
     val name: String,
     val display: ItemStack,
-    private val small: ArenaTemplate,
-    private val medium: ArenaTemplate,
-    private val large: ArenaTemplate
+    private val small: DuelArenaTemplate,
+    private val medium: DuelArenaTemplate,
+    private val large: DuelArenaTemplate
 ) {
-    fun getArenaTemplateFor(size: ArenaSize): ArenaTemplate {
+    fun getArenaTemplateFor(size: DuelArenaSize): DuelArenaTemplate {
         return when (size) {
-            ArenaSize.Small -> this.small
-            ArenaSize.Medium -> this.medium
-            ArenaSize.Large -> this.large
+            DuelArenaSize.Small -> this.small
+            DuelArenaSize.Medium -> this.medium
+            DuelArenaSize.Large -> this.large
         }
     }
 
@@ -25,9 +24,9 @@ class DuelArenasTemplate(
             instance.group(
                 Codec.STRING.fieldOf("name").forGetter(DuelArenasTemplate::name),
                 ItemStack.SINGLE_ITEM_CODEC.fieldOf("display").forGetter(DuelArenasTemplate::display),
-                ArenaTemplate.CODEC.fieldOf("small").forGetter(DuelArenasTemplate::small),
-                ArenaTemplate.CODEC.fieldOf("medium").forGetter(DuelArenasTemplate::medium),
-                ArenaTemplate.CODEC.fieldOf("large").forGetter(DuelArenasTemplate::large)
+                DuelArenaTemplate.CODEC.fieldOf("small").forGetter(DuelArenasTemplate::small),
+                DuelArenaTemplate.CODEC.fieldOf("medium").forGetter(DuelArenasTemplate::medium),
+                DuelArenaTemplate.CODEC.fieldOf("large").forGetter(DuelArenasTemplate::large)
             ).apply(instance, ::DuelArenasTemplate)
         }
     }

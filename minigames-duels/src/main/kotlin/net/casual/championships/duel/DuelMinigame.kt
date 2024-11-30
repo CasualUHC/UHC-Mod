@@ -35,7 +35,7 @@ import net.casual.arcade.utils.PlayerUtils.unboostHealth
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.impl.Location
-import net.casual.championships.common.arena.Arena
+import net.casual.championships.duel.arena.DuelArena
 import net.casual.championships.common.items.PlayerHeadItem
 import net.casual.championships.common.recipes.GoldenHeadRecipe
 import net.casual.championships.common.util.CommonItems
@@ -246,7 +246,7 @@ class DuelMinigame(
         }
     }
 
-    private fun createArena(): Arena {
+    private fun createArena(): DuelArena {
         val level = CustomLevelBuilder.build(this.server) {
             randomDimensionKey()
             dimensionType(BuiltinDimensionTypes.OVERWORLD)

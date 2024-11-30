@@ -9,7 +9,7 @@ import net.casual.arcade.utils.ComponentUtils.mini
 import net.casual.arcade.utils.ItemUtils.hideAttributeTooltips
 import net.casual.arcade.utils.ItemUtils.named
 import net.casual.arcade.utils.ItemUtils.potion
-import net.casual.championships.common.arena.ArenaTemplate
+import net.casual.championships.duel.arena.DuelArenaTemplate
 import net.casual.championships.common.items.DisplayItems.ARENA
 import net.casual.championships.common.items.DisplayItems.FLAG
 import net.casual.championships.common.items.DisplayItems.GLOWING
@@ -29,8 +29,8 @@ import net.casual.championships.common.items.DisplayItems.THREE_TIMES_SELECTED
 import net.casual.championships.common.items.DisplayItems.TWO_TIMES
 import net.casual.championships.common.items.DisplayItems.TWO_TIMES_SELECTED
 import net.casual.championships.common.minigame.CasualSettings
-import net.casual.championships.duel.arena.ArenaSize
-import net.casual.championships.duel.arena.ArenaSize.*
+import net.casual.championships.duel.arena.DuelArenaSize
+import net.casual.championships.duel.arena.DuelArenaSize.*
 import net.casual.championships.duel.arena.DuelArenasTemplate
 import net.minecraft.core.component.DataComponents
 import net.minecraft.network.chat.Component
@@ -104,10 +104,10 @@ class DuelSettings(
     }
     var arena by this.register(this.displayableArena)
 
-    val displayableArenaSize = enumeration<ArenaSize> {
+    val displayableArenaSize = enumeration<DuelArenaSize> {
         name = "arena_size"
         display = GREEN_DIAGONAL.named(Component.translatable("casual.gui.duel.settings.arenaSize").mini())
-        value = enumEntries<ArenaSize>().random()
+        value = enumEntries<DuelArenaSize>().random()
         option("small", ONE_TIMES.named("Small"), Small) { setting, _, _ ->
             (if (setting.get() == Small) SMALL_SELECTED else SMALL).named("Small")
         }
@@ -120,8 +120,8 @@ class DuelSettings(
     }
     var arenaSize by this.register(this.displayableArenaSize)
 
-    fun getArenaTemplate(): ArenaTemplate {
-        val arena = this.arenas.find { it.name == this.arena } ?: return ArenaTemplate.DEFAULT
+    fun getArenaTemplate(): DuelArenaTemplate {
+        val arena = this.arenas.first { it.name == this.arena }
         return arena.getArenaTemplateFor(this.arenaSize)
     }
 }

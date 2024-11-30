@@ -8,6 +8,7 @@ import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.encodeToStream
 import net.casual.arcade.host.PackHost
 import net.casual.championships.CasualMod
+import net.casual.championships.common.util.CommonConfig
 import net.fabricmc.loader.api.FabricLoader
 import org.apache.commons.lang3.SerializationException
 import java.io.IOException
@@ -32,8 +33,12 @@ data class CasualConfig(
         private val root = FabricLoader.getInstance().configDir.resolve("CasualChampionships")
         private val config = this.root.resolve("config.json")
 
+        @Deprecated(
+            "Use CommonConfig",
+            ReplaceWith("CommonConfig.resolve(next)", "net.casual.championships.common.util.CommonConfig")
+        )
         fun resolve(next: String): Path {
-            return root.resolve(next)
+            return CommonConfig.resolve(next)
         }
 
         private val json = Json {

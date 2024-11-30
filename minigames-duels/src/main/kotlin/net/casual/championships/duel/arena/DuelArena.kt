@@ -1,9 +1,9 @@
-package net.casual.championships.common.arena
+package net.casual.championships.duel.arena
 
 import net.casual.arcade.minigame.area.PlaceableArea
 import net.casual.arcade.minigame.template.teleporter.EntityTeleporter
 
-class Arena(
+class DuelArena(
     val area: PlaceableArea,
     val teleporter: EntityTeleporter
 )

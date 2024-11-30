@@ -16,6 +16,7 @@ import net.casual.arcade.resources.utils.ResourcePackUtils.addPack
 import net.casual.arcade.utils.TeamUtils.getHexColor
 import net.casual.championships.CasualMod
 import net.casual.championships.common.CommonMod
+import net.casual.championships.common.util.CommonConfig
 import net.casual.championships.events.CasualConfigReloaded
 import net.casual.championships.uhc.UHCMod
 import net.casual.championships.util.CasualConfig
@@ -24,10 +25,11 @@ import net.minecraft.world.scores.PlayerTeam
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.CompletableFuture
+import kotlin.io.path.createDirectories
 import kotlin.io.path.outputStream
 
 object CasualResourcePackHost {
-    private val packs = CasualConfig.resolve("packs")
+    private val packs = CommonConfig.resolve("packs")
     private val generated = this.packs.resolve("generated")
 
     private val colors = Object2IntOpenHashMap<ChatFormatting>()
@@ -115,7 +117,7 @@ object CasualResourcePackHost {
         try {
             @Suppress("DEPRECATION")
             val pathHash = Hashing.sha1().hashString(hosted.url, StandardCharsets.UTF_8).toString()
-            val path = ReplayConfig.root.resolve("packs").resolve(pathHash)
+            val path = ReplayConfig.root.resolve("packs").createDirectories().resolve(pathHash)
             path.outputStream().use {
                 hosted.pack.stream().transferTo(it)
             }
