@@ -13,6 +13,7 @@
   "casual.gui.duel.settings.arena": "Arena",
   "casual.gui.duel.settings.arenaSize": "Arena Size",
 
+  "casual.duel.cannotMinesweeperNow": "You cannot player Minesweeper now!",
   "casual.duel.cannotDuelNow": "You cannot duel now!",
   "casual.duel.clickToStart": "Click here to start duel with accepted players",
   "casual.duel.notEnoughPlayers": "Not enough players for duel!",

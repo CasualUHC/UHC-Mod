@@ -14,7 +14,7 @@ object MinesweeperCommand: CommandTree {
         return Commands.literal("minesweeper").executes(this::execute)
     }
 
-    private fun execute(context: CommandContext<CommandSourceStack>): Int {
+    fun execute(context: CommandContext<CommandSourceStack>): Int {
         MinesweeperGui(context.source.playerOrException).open()
         return Command.SINGLE_SUCCESS
     }

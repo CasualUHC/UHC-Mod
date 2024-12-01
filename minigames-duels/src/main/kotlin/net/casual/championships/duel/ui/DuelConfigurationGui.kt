@@ -55,7 +55,7 @@ class DuelConfigurationGui(
         waiting.lore(Component.literal("Select players to start!").grey().mini())
         this.waiting = GuiElement(waiting, GuiElement.EMPTY_CALLBACK)
 
-        this.setSlot(49, this.waiting)
+        this.updateConfirm()
 
         this.setSlot(58, DisplayItems.RED_BACK.hideTooltip()) { ->
             this.close()
@@ -79,8 +79,15 @@ class DuelConfigurationGui(
         if (wasSelected) {
             this.selectedPlayers.remove(uuid)
         }
-        val element = if (this.selectedPlayers.isEmpty()) this.waiting else this.confirm
-        this.setSlot(49, element)
+        this.updateConfirm()
         return !wasSelected
+    }
+
+    private fun updateConfirm() {
+        if (this.selectedPlayers.isEmpty() && !this.player.hasPermissions(4)) {
+            this.setSlot(49, this.waiting)
+            return
+        }
+        this.setSlot(49, this.confirm)
     }
 }

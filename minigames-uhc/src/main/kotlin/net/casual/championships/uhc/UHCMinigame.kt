@@ -30,6 +30,7 @@ import net.casual.arcade.minigame.task.impl.MinigameTask
 import net.casual.arcade.minigame.utils.MinigameUtils.addEventListener
 import net.casual.arcade.minigame.utils.MinigameUtils.requiresAdminOrPermission
 import net.casual.arcade.resources.font.spacing.SpacingFontResources
+import net.casual.arcade.resources.utils.ResourcePackUtils.afterPacksLoad
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.utils.ComponentUtils
 import net.casual.arcade.utils.ComponentUtils.bold
@@ -449,9 +450,15 @@ class UHCMinigame(
         this.tags.add(player, CommonTags.HAS_TEAM_GLOW)
 
         player.addEffect(
-            MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 200, 4, true, false)
+            MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 2000, 255, true, false)
         )
         player.setGameMode(GameType.SURVIVAL)
+        player.afterPacksLoad {
+            player.removeEffect(MobEffects.DAMAGE_RESISTANCE)
+            player.addEffect(
+                MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 200, 255, true, false)
+            )
+        }
 
         if (team != null) {
             this.teams.removeEliminatedTeam(team)

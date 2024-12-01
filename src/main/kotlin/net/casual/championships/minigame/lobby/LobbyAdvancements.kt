@@ -41,7 +41,6 @@ object LobbyAdvancements: AdvancementCollection() {
         id = CasualMod.id("not_now")
         display(Items.NETHERITE_SWORD)
         setTitleAndDesc("lobby.advancements.notNow")
-        toast()
         announce()
     }
 

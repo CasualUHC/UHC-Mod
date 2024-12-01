@@ -9,7 +9,7 @@ import net.minecraft.server.level.ServerLevel
 
 class DuelArenaTemplate(val name: String) {
     private val pair by lazy {
-        StructureUtils.readWithData(arena.resolve(this.name), DuelArenaData.CODEC)
+        StructureUtils.readWithData(arenas.resolve(this.name), DuelArenaData.CODEC)
     }
 
     fun create(level: ServerLevel): DuelArena {
@@ -18,7 +18,7 @@ class DuelArenaTemplate(val name: String) {
     }
 
     companion object {
-        private val arena = CommonConfig.resolve("arena")
+        private val arenas = CommonConfig.resolve("arenas")
 
         val CODEC: Codec<DuelArenaTemplate> = RecordCodecBuilder.create { instance ->
             instance.group(

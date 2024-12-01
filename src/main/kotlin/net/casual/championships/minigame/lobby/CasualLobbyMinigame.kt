@@ -5,7 +5,10 @@ import com.mojang.brigadier.Command
 import com.mojang.brigadier.context.CommandContext
 import it.unimi.dsi.fastutil.ints.IntList
 import net.casual.arcade.commands.*
-import net.casual.arcade.events.player.*
+import net.casual.arcade.events.player.PlayerFallEvent
+import net.casual.arcade.events.player.PlayerTeamJoinEvent
+import net.casual.arcade.events.player.PlayerTickEvent
+import net.casual.arcade.events.player.PlayerTryAttackEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.area.PlaceableArea
@@ -21,6 +24,7 @@ import net.casual.arcade.minigame.stats.Stat.Companion.increment
 import net.casual.arcade.minigame.stats.StatType
 import net.casual.arcade.minigame.template.location.LocationTemplate
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
+import net.casual.arcade.minigame.utils.MinigameUtils.isMinigameAdminOrHasPermission
 import net.casual.arcade.resources.utils.ResourcePackUtils.afterPacksLoad
 import net.casual.arcade.scheduler.MinecraftScheduler
 import net.casual.arcade.utils.ComponentUtils.bold
@@ -38,6 +42,7 @@ import net.casual.arcade.utils.PlayerUtils.sendSound
 import net.casual.arcade.utils.PlayerUtils.sendTitle
 import net.casual.arcade.utils.PlayerUtils.setTitleAnimation
 import net.casual.arcade.utils.PlayerUtils.teleportTo
+import net.casual.arcade.utils.TeamUtils.getOnlineCount
 import net.casual.arcade.utils.TimeUtils.Minutes
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.TimeUtils.Ticks
@@ -53,6 +58,7 @@ import net.casual.arcade.visuals.sidebar.SidebarComponent
 import net.casual.arcade.visuals.sidebar.SidebarComponents
 import net.casual.arcade.visuals.tab.PlayerListDisplay
 import net.casual.championships.CasualMod
+import net.casual.championships.commands.MinesweeperCommand
 import net.casual.championships.common.event.MinesweeperWonEvent
 import net.casual.championships.common.minigame.CasualSettings
 import net.casual.championships.common.minigame.rules.RulesProvider
@@ -353,7 +359,11 @@ class CasualLobbyMinigame(
     }
 
     private fun registerCommands() {
+        this.commands.register(CommandTree.buildLiteral("minesweeper") {
+            executes(::minesweeper)
+        })
         this.commands.register(CommandTree.buildLiteral("duel") {
+            executes(::startDuel)
             literal("start") {
                 executes(::startDuel)
             }
@@ -369,11 +379,20 @@ class CasualLobbyMinigame(
         })
     }
 
+    private fun minesweeper(context: CommandContext<CommandSourceStack>): Int {
+        if (this.phase < LobbyPhase.Readying) {
+            return MinesweeperCommand.execute(context)
+        }
+        context.source.playerOrException.grantAdvancement(LobbyAdvancements.NOT_NOW)
+        return context.source.fail(Component.translatable("casual.duel.cannotMinesweeperNow"))
+    }
+
     private fun startDuel(context: CommandContext<CommandSourceStack>): Int {
+        val player = context.source.playerOrException
         if (this.phase >= LobbyPhase.Readying) {
+            player.grantAdvancement(LobbyAdvancements.NOT_NOW)
             return context.source.fail(Component.translatable("casual.duel.cannotDuelNow"))
         }
-        val player = context.source.playerOrException
         val settings = DuelSettings(this.duelArenaTemplates)
         val gui = DuelConfigurationGui(player, settings, this.players::all, this::requestDuelWith)
         gui.open()
@@ -412,7 +431,7 @@ class CasualLobbyMinigame(
         val requesting = duelers.filter { it !== initiator }
 
         val requester = DuelRequester(initiator, duelers)
-        if (requesting.isEmpty()) {
+        if (requesting.isEmpty() && !initiator.isMinigameAdminOrHasPermission(4)) {
             requester.broadcastTo(Component.translatable("casual.duel.notEnoughPlayers").mini().red(), initiator)
             return
         }
@@ -455,7 +474,7 @@ class CasualLobbyMinigame(
         }
         ready.removeIf { !this.players.has(it) }
 
-        if (ready.size <= 1) {
+        if (ready.size <= 1 && !initiator.isMinigameAdminOrHasPermission(4)) {
             requester.broadcastTo(Component.translatable("casual.duel.notEnoughPlayers").mini().red(), initiator)
             return false
         }
@@ -542,10 +561,11 @@ class CasualLobbyMinigame(
 
         val teammates = TeammatesSidebarElements(Component.literal(" "), Component.literal(" "), false)
         val players = UniversalElement.cached { server ->
-            val online = this.players.playingPlayerCount
-            val expected = server.scoreboard.playerTeams.filter {
+            val playing = server.scoreboard.playerTeams.filter {
                 !this.teams.isTeamIgnored(it)
-            }.sumOf { it.players.size }
+            }
+            val online = playing.sumOf { it.getOnlineCount() }
+            val expected = playing.sumOf { it.players.size }
             SidebarComponent.withCustomScore(
                 Component.literal(" Players: ").mini().lime().bold(),
                 Component.literal("$online/$expected ").mini().yellow()

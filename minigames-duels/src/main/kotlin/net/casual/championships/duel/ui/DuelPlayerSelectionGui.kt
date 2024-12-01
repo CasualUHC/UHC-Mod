@@ -63,7 +63,6 @@ class DuelPlayerSelectionGui(
                 this.setSlot(slot - 9, DisplayItems.GREEN_HIGHLIGHT.hideTooltip())
             }
             val name = Component.literal(player.scoreboardName).yellow().mini()
-            // TODO: Why is the name not working??!?!?!??
             this.setSlot(slot, head.named(name)) { _, _, _, _ ->
                 if (this.configuration.toggleSelection(player.uuid)) {
                     this.setSlot(slot - 9, DisplayItems.GREEN_HIGHLIGHT.hideTooltip())

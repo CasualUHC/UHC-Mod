@@ -67,6 +67,7 @@ class DuelMinigame(
 ): Minigame(server, uuid) {
     override val id = ID
 
+    private val lootSeed = Random.nextLong()
     private val modifiableBlocks = HashSet<BlockPos>()
     private var emptyTicks = 0
 
@@ -213,7 +214,7 @@ class DuelMinigame(
 
         val stacks = getOrCreateLootTable(this.server.registryAccess()).getRandomItems(
             LootParams.Builder(player.serverLevel()).create(ContextKeySet.Builder().build()),
-            Random.nextLong()
+            this.lootSeed
         )
 
         player.clearPlayerInventory()
