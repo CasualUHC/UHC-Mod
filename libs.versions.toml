@@ -1,14 +1,16 @@
 [versions]
-fabric-loom          = "1.8-SNAPSHOT"
-minecraft            = "1.21.3"
-fabric-loader        = "0.16.7"
+minecraft            = "1.21.4"
+fabric-loader        = "0.16.9"
 parchment            = "1.21:2024.11.10"
-fabric-api           = "0.106.1+1.21.3"
-fabric-kotlin        = "1.11.0+kotlin.2.0.0"
+fabric-api           = "0.110.5+1.21.4"
+fabric-kotlin        = "1.13.0+kotlin.2.1.0"
 map-canvas           = "0.5.0+1.21.3"
-arcade               = "0.3.1-alpha.46+1.21.3"
-server-replay        = "1.2.4+1.21.3"
+arcade               = "0.3.1-alpha.48+1.21.4"
+server-replay        = "1.2.6+1.21.4"
 casual-database      = "0.2.0"
+
+# Plugins
+fabric-loom = "1.9-SNAPSHOT"
 
 [libraries]
 minecraft       = { module = "com.mojang:minecraft"                         , version.ref = "minecraft" }
@@ -22,4 +24,4 @@ casual-database = { module = "net.casual-championships:casual-database-core", ve
 server-replay   = { module = "me.senseiwells:server-replay"                 , version.ref = "server-replay" }
 
 [plugins]
-fabric-loom   = { id = "fabric-loom", version.ref = "fabric-loom" }
+fabric-loom = { id = "fabric-loom", version.ref = "fabric-loom" }

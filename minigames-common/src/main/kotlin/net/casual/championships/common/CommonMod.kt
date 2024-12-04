@@ -45,7 +45,6 @@ object CommonMod: ModInitializer {
     }
 
     val COMMON_PACKS = listOf(
-        ArcadeResourcePacks.NO_SHADOW_PACK,
         ArcadeResourcePacks.PADDING_FONT_PACK,
         ArcadeResourcePacks.PLAYER_HEADS_PACK,
         ArcadeResourcePacks.HIDE_PLAYER_LIST_HEADS_PACK,
