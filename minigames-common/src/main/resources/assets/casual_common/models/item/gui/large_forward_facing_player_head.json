@@ -1,25 +1,10 @@
 {
-  "textures": {
-    "particle": "block/soul_sand"
-  },
-  "parent": "builtin/entity",
+  "parent": "item/template_skull",
   "display": {
     "gui": {
-      "translation": [
-        0.0,
-        7.0,
-        0.0
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "scale": [
-        1.8,
-        1.8,
-        1.8
-      ]
+      "translation": [0.0, 7.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "scale": [1.8, 1.8, 1.8]
     }
   },
   "gui_light": "front"
