@@ -7,6 +7,7 @@ import net.casual.arcade.minigame.template.teleporter.ShapedTeleporter
 import net.casual.arcade.utils.StructureUtils
 import net.casual.arcade.utils.impl.Location
 import net.casual.arcade.utils.isOceanOrRiver
+import net.casual.arcade.utils.isOf
 import net.casual.arcade.visuals.shapes.LevelSurfaceShape
 import net.casual.arcade.visuals.shapes.Regular2DPolygonShape
 import net.casual.arcade.visuals.shapes.ShapePoints
@@ -14,10 +15,12 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.BlockPos.MutableBlockPos
 import net.minecraft.core.Direction
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.tags.BiomeTags
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.SpawnPlacementTypes
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.biome.Biomes
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.levelgen.Heightmap
 import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings
@@ -107,7 +110,7 @@ object UHCSpreadTeleporter: ShapedTeleporter() {
                 return point
             }
             val pair = this.level.findClosestBiome3d(
-                { holder -> !holder.isOceanOrRiver() },
+                { holder -> !holder.isOceanOrRiver() && !holder.isOf(BiomeTags.IS_BEACH) },
                 containing, this.delta.toInt(), max((this.delta / 10).toInt(), 32), this.level.height
             )
             if (pair == null || !this.level.isInWorldBounds(pair.first)) {
