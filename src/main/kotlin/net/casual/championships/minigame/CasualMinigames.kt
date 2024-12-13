@@ -38,6 +38,7 @@ import net.casual.arcade.utils.toSmallCaps
 import net.casual.championships.CasualMod
 import net.casual.championships.commands.CasualCommand
 import net.casual.championships.commands.MinesweeperCommand
+import net.casual.championships.commands.RenameCommand
 import net.casual.championships.commands.ViewCommand
 import net.casual.championships.common.ui.CasualCountdown
 import net.casual.championships.common.ui.CasualTeamReadyHandler
@@ -120,7 +121,7 @@ object CasualMinigames {
         CasualLobbyMinigameFactory.register(MinigameRegistries.MINIGAME_FACTORY)
 
         GlobalEventHandler.register<ServerRegisterCommandEvent> { event ->
-            event.register(MinesweeperCommand, CasualCommand, ViewCommand)
+            event.register(MinesweeperCommand, CasualCommand, ViewCommand, RenameCommand)
         }
 
         GlobalEventHandler.register<PlayerRequestLoginEvent> { event ->
