@@ -5,10 +5,11 @@ import com.mojang.brigadier.Command
 import com.mojang.brigadier.context.CommandContext
 import it.unimi.dsi.fastutil.ints.IntList
 import net.casual.arcade.commands.*
-import net.casual.arcade.events.player.PlayerFallEvent
-import net.casual.arcade.events.player.PlayerTeamJoinEvent
-import net.casual.arcade.events.player.PlayerTickEvent
-import net.casual.arcade.events.player.PlayerTryAttackEvent
+import net.casual.arcade.events.ListenerRegistry.Companion.register
+import net.casual.arcade.events.server.player.PlayerFallEvent
+import net.casual.arcade.events.server.player.PlayerTeamJoinEvent
+import net.casual.arcade.events.server.player.PlayerTickEvent
+import net.casual.arcade.events.server.player.PlayerTryAttackEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.area.PlaceableArea

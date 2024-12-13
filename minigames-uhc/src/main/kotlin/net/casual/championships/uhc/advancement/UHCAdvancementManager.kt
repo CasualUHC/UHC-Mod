@@ -2,8 +2,8 @@ package net.casual.championships.uhc.advancement
 
 import com.google.gson.JsonObject
 import net.casual.arcade.events.BuiltInEventPhases
-import net.casual.arcade.events.entity.EntityDeathEvent
-import net.casual.arcade.events.player.*
+import net.casual.arcade.events.server.entity.EntityDeathEvent
+import net.casual.arcade.events.server.player.*
 import net.casual.arcade.minigame.annotation.During
 import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.annotation.ListenerFlags

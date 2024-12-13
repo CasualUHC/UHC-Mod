@@ -11,10 +11,10 @@ import net.casual.arcade.border.tracker.MultiLevelBorderTracker
 import net.casual.arcade.border.tracker.TrackedBorder
 import net.casual.arcade.commands.*
 import net.casual.arcade.events.BuiltInEventPhases
-import net.casual.arcade.events.block.BrewingStandBrewEvent
-import net.casual.arcade.events.level.LevelLootEvent
-import net.casual.arcade.events.player.*
 import net.casual.arcade.events.server.ServerTickEvent
+import net.casual.arcade.events.server.block.BrewingStandBrewEvent
+import net.casual.arcade.events.server.level.LevelLootEvent
+import net.casual.arcade.events.server.player.*
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.During
 import net.casual.arcade.minigame.annotation.Listener
@@ -583,7 +583,7 @@ class UHCMinigame(
 
     override fun getRules(): Rules {
         return Rules.build {
-            addRule("uhc.rules.announcement", 1 to 9.Seconds)
+            addRule("uhc.rules.announcement", 1)
             addRule("uhc.rules.mods", 3)
             addRule("uhc.rules.exploits", 2)
             addRule("uhc.rules.pvp", 3, 6)
@@ -618,7 +618,7 @@ class UHCMinigame(
                 }
             }
             addRule("uhc.rules.questions", 1)
-            addRule("uhc.rules.finally", 1 to 9.Seconds)
+            addRule("uhc.rules.finally", 1)
         }
     }
 

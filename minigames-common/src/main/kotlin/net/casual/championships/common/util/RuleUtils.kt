@@ -12,7 +12,7 @@ import net.minecraft.network.chat.MutableComponent
 
 object RuleUtils {
     fun Rules.Builder.addRule(key: String, vararg entries: Int) {
-        this.addRule(key, *entries.map { it to 8.Seconds }.toTypedArray())
+        this.addRule(key, *entries.map { it to 9.Seconds }.toTypedArray())
     }
 
     fun Rules.Builder.addRule(key: String, vararg entries: Pair<Int, MinecraftTimeDuration>) {

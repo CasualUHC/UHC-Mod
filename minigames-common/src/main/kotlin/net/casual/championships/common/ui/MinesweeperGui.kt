@@ -138,7 +138,7 @@ class MinesweeperGui(
     private fun onWin(player: ServerPlayer) {
         this.complete = true
         val time = (System.nanoTime() - grid.startTime).nanoseconds
-        GlobalEventHandler.broadcast(MinesweeperWonEvent(player, time))
+        GlobalEventHandler.Server.broadcast(MinesweeperWonEvent(player, time))
     }
 
     private fun onLose(player: ServerPlayer) {

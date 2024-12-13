@@ -37,7 +37,7 @@ object CasualMod: DedicatedServerModInitializer {
 
     fun reload() {
         this.config = CasualConfig.read()
-        GlobalEventHandler.broadcast(CasualConfigReloaded(this.config))
+        GlobalEventHandler.Server.broadcast(CasualConfigReloaded(this.config))
     }
 
     // TODO:

@@ -20,7 +20,6 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.SpawnPlacementTypes
 import net.minecraft.world.level.Level
-import net.minecraft.world.level.biome.Biomes
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.levelgen.Heightmap
 import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings
@@ -38,9 +37,12 @@ object UHCSpreadTeleporter: ShapedTeleporter() {
     override fun teleportTeam(team: PlayerTeam, entities: Collection<Entity>, location: Location) {
         val (level, pos, rot) = location
         val origin = BlockPos.containing(pos)
-        val blockPositions = BlockPos.spiralAround(origin, 16, Direction.EAST, Direction.SOUTH)
-        for (blockPos in blockPositions) {
-            val adjusted = this.getTopNonCollidingPos(level, blockPos) ?: continue
+        val positions = MathUtils.dispersed(origin, 20, 100, 8, Direction.Axis.Y)
+        for (position in positions) {
+            val adjusted = this.getTopNonCollidingPos(level, position)
+            if (adjusted == null || !level.worldBorder.isWithinBounds(adjusted)) {
+                continue
+            }
             super.teleportTeam(team, entities, Location.of(adjusted.center, rot, level))
             return
         }

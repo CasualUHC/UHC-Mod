@@ -3,9 +3,10 @@ package net.casual.championships.minigame
 import com.mojang.serialization.JsonOps
 import net.casual.arcade.commands.register
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.player.PlayerJoinEvent
-import net.casual.arcade.events.player.PlayerRequestLoginEvent
-import net.casual.arcade.events.player.PlayerTeamJoinEvent
+import net.casual.arcade.events.ListenerRegistry.Companion.register
+import net.casual.arcade.events.server.player.PlayerJoinEvent
+import net.casual.arcade.events.server.player.PlayerRequestLoginEvent
+import net.casual.arcade.events.server.player.PlayerTeamJoinEvent
 import net.casual.arcade.events.server.ServerLoadedEvent
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
 import net.casual.arcade.events.server.ServerSaveEvent
@@ -42,6 +43,7 @@ import net.casual.championships.commands.RenameCommand
 import net.casual.championships.commands.ViewCommand
 import net.casual.championships.common.ui.CasualCountdown
 import net.casual.championships.common.ui.CasualTeamReadyHandler
+import net.casual.championships.common.util.CommonConfig
 import net.casual.championships.common.util.CommonSounds
 import net.casual.championships.common.util.CommonUI
 import net.casual.championships.common.util.CommonUI.broadcastWithSound
@@ -75,7 +77,7 @@ import kotlin.io.path.writer
 
 @Suppress("UnstableApiUsage")
 object CasualMinigames {
-    private val path: Path = CasualConfig.resolve("event")
+    private val path: Path = CommonConfig.resolve("event")
     internal val winners = HashSet<String>()
 
     private var minigames: SequentialMinigames? = null
@@ -113,18 +115,18 @@ object CasualMinigames {
     }
 
     internal fun registerEvents() {
-        GlobalEventHandler.register<MinigameInitializeEvent> { event -> this.modifyMinigame(event.minigame) }
+        GlobalEventHandler.Server.register<MinigameInitializeEvent> { event -> this.modifyMinigame(event.minigame) }
 
         // TODO: Move these?
         UHCMinigameFactory.register(MinigameRegistries.MINIGAME_FACTORY)
         DuelMinigameFactory.register(MinigameRegistries.MINIGAME_FACTORY)
         CasualLobbyMinigameFactory.register(MinigameRegistries.MINIGAME_FACTORY)
 
-        GlobalEventHandler.register<ServerRegisterCommandEvent> { event ->
+        GlobalEventHandler.Server.register<ServerRegisterCommandEvent> { event ->
             event.register(MinesweeperCommand, CasualCommand, ViewCommand, RenameCommand)
         }
 
-        GlobalEventHandler.register<PlayerRequestLoginEvent> { event ->
+        GlobalEventHandler.Server.register<PlayerRequestLoginEvent> { event ->
             if (event.isAccepted && !floodgates && !event.server.playerList.isOp(event.profile)) {
                 event.deny(Component.literal("CasualChampionships isn't quite ready yet..."))
             }
@@ -136,7 +138,7 @@ object CasualMinigames {
         }
 
         // This must happen before minigames are loaded
-        GlobalEventHandler.register<ServerLoadedEvent>(0) {
+        GlobalEventHandler.Server.register<ServerLoadedEvent>(0) {
             val minigames = SequentialMinigames(this.readMinigameEvent(), it.server)
             this.minigames = minigames
 
@@ -145,7 +147,7 @@ object CasualMinigames {
             this.dataManager = createDataManager(CasualMod.config)
 
         }
-        GlobalEventHandler.register<ServerLoadedEvent>(Int.MAX_VALUE) {
+        GlobalEventHandler.Server.register<ServerLoadedEvent>(Int.MAX_VALUE) {
             val data = this.loadMinigameEventData()
             if (data != null) {
                 this.getMinigames().setData(data)
@@ -155,19 +157,19 @@ object CasualMinigames {
             this.createTeams(it.server)
         }
 
-        GlobalEventHandler.register<PlayerJoinEvent>(phase = PlayerJoinEvent.PHASE_INITIALIZED) {
+        GlobalEventHandler.Server.register<PlayerJoinEvent>(phase = PlayerJoinEvent.PHASE_INITIALIZED) {
             it.delayJoinMessage = true
         }
-        GlobalEventHandler.register<PlayerJoinEvent> {
+        GlobalEventHandler.Server.register<PlayerJoinEvent> {
             val player = it.player
             this.getMinigames().addPlayer(player)
         }
 
-        GlobalEventHandler.register<ServerSaveEvent> {
+        GlobalEventHandler.Server.register<ServerSaveEvent> {
             this.writeMinigameEventData(this.getMinigames().getData())
         }
 
-        GlobalEventHandler.register<CasualConfigReloaded> { (config) ->
+        GlobalEventHandler.Server.register<CasualConfigReloaded> { (config) ->
             val minigames = this.getMinigames()
             minigames.event = this.readMinigameEvent()
             minigames.reloadLobby()
@@ -176,7 +178,7 @@ object CasualMinigames {
             this.dataManager = this.createDataManager(config)
         }
 
-        GlobalEventHandler.register<ServerStoppingEvent> {
+        GlobalEventHandler.Server.register<ServerStoppingEvent> {
             this.getDataManager().close()
         }
     }

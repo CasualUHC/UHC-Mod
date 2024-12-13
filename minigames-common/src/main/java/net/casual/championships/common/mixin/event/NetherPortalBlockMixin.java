@@ -31,7 +31,7 @@ public class NetherPortalBlockMixin {
 		@Local(argsOnly = true) Entity entity
 	) {
 		BorderEntityPortalEntryPointEvent event = new BorderEntityPortalEntryPointEvent(border, level, entity, new Vec3(x, y, z));
-		GlobalEventHandler.broadcast(event);
+		GlobalEventHandler.Server.broadcast(event);
 		if (event.isCancelled()) {
 			return event.result();
 		}

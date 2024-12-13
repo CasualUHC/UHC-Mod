@@ -5,6 +5,7 @@ import com.google.common.hash.Hashing
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import me.senseiwells.replay.config.ReplayConfig
 import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerStoppingEvent
 import net.casual.arcade.host.HostedPack
 import net.casual.arcade.host.PackHost
@@ -19,7 +20,6 @@ import net.casual.championships.common.CommonMod
 import net.casual.championships.common.util.CommonConfig
 import net.casual.championships.events.CasualConfigReloaded
 import net.casual.championships.uhc.UHCMod
-import net.casual.championships.util.CasualConfig
 import net.minecraft.ChatFormatting
 import net.minecraft.world.scores.PlayerTeam
 import java.io.IOException
@@ -95,10 +95,10 @@ object CasualResourcePackHost {
     internal fun registerEvents() {
         this.host.start()
 
-        GlobalEventHandler.register<ServerStoppingEvent> {
+        GlobalEventHandler.Server.register<ServerStoppingEvent> {
             this.host.stop()
         }
-        GlobalEventHandler.register<CasualConfigReloaded> {
+        GlobalEventHandler.Server.register<CasualConfigReloaded> {
             this.reload()
         }
     }

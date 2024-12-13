@@ -3,10 +3,10 @@ package net.casual.championships.duel
 import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
 import net.casual.arcade.dimensions.utils.impl.VoidChunkGenerator
 import net.casual.arcade.events.BuiltInEventPhases
-import net.casual.arcade.events.level.LevelBlockChangedEvent
-import net.casual.arcade.events.level.LevelFluidTrySpreadEvent
-import net.casual.arcade.events.player.*
 import net.casual.arcade.events.server.ServerTickEvent
+import net.casual.arcade.events.server.level.LevelBlockChangedEvent
+import net.casual.arcade.events.server.level.LevelFluidTrySpreadEvent
+import net.casual.arcade.events.server.player.*
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.During
 import net.casual.arcade.minigame.annotation.Listener
@@ -17,8 +17,8 @@ import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.settings.MinigameSettings
 import net.casual.arcade.utils.ComponentUtils.bold
 import net.casual.arcade.utils.ComponentUtils.color
-import net.casual.arcade.utils.ComponentUtils.command
 import net.casual.arcade.utils.ComponentUtils.mini
+import net.casual.arcade.utils.ComponentUtils.suggestCommand
 import net.casual.arcade.utils.ItemUtils.isOf
 import net.casual.arcade.utils.LootTableUtils
 import net.casual.arcade.utils.LootTableUtils.addItem
@@ -36,11 +36,12 @@ import net.casual.arcade.utils.PlayerUtils.unboostHealth
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.impl.Location
-import net.casual.championships.duel.arena.DuelArena
 import net.casual.championships.common.items.PlayerHeadItem
 import net.casual.championships.common.recipes.GoldenHeadRecipe
 import net.casual.championships.common.util.CommonItems
 import net.casual.championships.common.util.CommonUI.broadcastInfo
+import net.casual.championships.common.util.RuleUtils
+import net.casual.championships.duel.arena.DuelArena
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.core.HolderLookup
@@ -234,8 +235,9 @@ class DuelMinigame(
     @Listener
     private fun onMinigameAddPlayer(event: MinigameAddNewPlayerEvent) {
         val leave = Component.literal("/duel leave").mini()
-            .bold().color(0x65b7db).command("/duel leave")
-        this.chat.broadcastInfo(Component.translatable("casual.duel.leaveDuel", leave), listOf(event.player))
+            .bold().color(0x65b7db).suggestCommand("/duel leave")
+        val message = RuleUtils.formatLine(Component.translatable("casual.duel.leaveDuel", leave))
+        this.chat.broadcastInfo(message, listOf(event.player))
     }
 
     @Listener

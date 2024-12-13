@@ -1,6 +1,6 @@
 package net.casual.championships.common.event
 
-import net.casual.arcade.events.level.LevelEvent
+import net.casual.arcade.events.server.level.LevelEvent
 import net.minecraft.core.Holder
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.Entity

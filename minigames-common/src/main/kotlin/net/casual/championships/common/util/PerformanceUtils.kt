@@ -1,7 +1,8 @@
 package net.casual.championships.common.util
 
 import net.casual.arcade.dimensions.utils.setCustomMobSpawningRules
-import net.casual.arcade.events.entity.EntityStartTrackingEvent
+import net.casual.arcade.events.ListenerRegistry.Companion.register
+import net.casual.arcade.events.server.entity.EntityStartTrackingEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.championships.common.level.ReducedMobSpawningRules
 import net.minecraft.world.entity.EntityType.*

@@ -1,9 +1,10 @@
 package net.casual.championships.common.util
 
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.level.LevelBlockChangedEvent
-import net.casual.arcade.events.level.LevelTickEvent
-import net.casual.arcade.events.player.PlayerBlockPlacedEvent
+import net.casual.arcade.events.ListenerRegistry.Companion.register
+import net.casual.arcade.events.server.level.LevelBlockChangedEvent
+import net.casual.arcade.events.server.level.LevelTickEvent
+import net.casual.arcade.events.server.player.PlayerBlockPlacedEvent
 import net.casual.arcade.extensions.event.LevelExtensionEvent
 import net.casual.arcade.utils.PlayerUtils.broadcastToOps
 import net.casual.championships.common.event.PlayerCheatEvent
@@ -26,10 +27,10 @@ object AntiCheat {
     }
 
     internal fun registerEvents() {
-        GlobalEventHandler.register<LevelExtensionEvent> { it.addExtension(WorldBlockTrackerExtension()) }
-        GlobalEventHandler.register<LevelTickEvent> { it.level.blockTracker.tick() }
-        GlobalEventHandler.register<LevelBlockChangedEvent> { onBlockChanged(it) }
-        GlobalEventHandler.register<PlayerBlockPlacedEvent> { onPlayerBlockPlaced(it) }
+        GlobalEventHandler.Server.register<LevelExtensionEvent> { it.addExtension(WorldBlockTrackerExtension()) }
+        GlobalEventHandler.Server.register<LevelTickEvent> { it.level.blockTracker.tick() }
+        GlobalEventHandler.Server.register<LevelBlockChangedEvent> { onBlockChanged(it) }
+        GlobalEventHandler.Server.register<PlayerBlockPlacedEvent> { onPlayerBlockPlaced(it) }
     }
 
     private fun onBlockChanged(event: LevelBlockChangedEvent) {
@@ -40,7 +41,7 @@ object AntiCheat {
 
     private fun onPlayerBlockPlaced(event: PlayerBlockPlacedEvent) {
         if (detectFlexibleBlockPlacement(event.player, event.context)) {
-            GlobalEventHandler.broadcast(PlayerCheatEvent(event.player, Type.FlexibleBlockPlacement))
+            GlobalEventHandler.Server.broadcast(PlayerCheatEvent(event.player, Type.FlexibleBlockPlacement))
 
             val message = Component.literal("Player ").append(event.player.displayName!!).append(" used fbp")
             event.player.server.playerList.players.broadcastToOps(message)

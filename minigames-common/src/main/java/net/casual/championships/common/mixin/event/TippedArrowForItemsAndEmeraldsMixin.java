@@ -18,7 +18,7 @@ public class TippedArrowForItemsAndEmeraldsMixin {
 	)
 	private Holder<Potion> onGetRandomPotion(Holder<Potion> original, Entity trader) {
 		TippedArrowTradeOfferEvent event = new TippedArrowTradeOfferEvent(trader, original);
-		GlobalEventHandler.broadcast(event);
+		GlobalEventHandler.Server.broadcast(event);
 		return event.getPotion();
 	}
 }

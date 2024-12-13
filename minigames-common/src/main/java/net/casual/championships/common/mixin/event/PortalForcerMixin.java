@@ -25,7 +25,7 @@ public class PortalForcerMixin {
 	)
 	private boolean isWithinWorldBorder(WorldBorder instance, BlockPos pos) {
 		BorderPortalWithinBoundsEvent event = new BorderPortalWithinBoundsEvent(this.level.getWorldBorder(), this.level, pos);
-		GlobalEventHandler.broadcast(event);
+		GlobalEventHandler.Server.broadcast(event);
 		if (event.isCancelled()) {
 			return event.result();
 		}

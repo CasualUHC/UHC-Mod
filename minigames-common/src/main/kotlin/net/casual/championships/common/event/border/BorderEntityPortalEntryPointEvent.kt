@@ -1,7 +1,7 @@
 package net.casual.championships.common.event.border
 
-import net.casual.arcade.events.core.CancellableEvent
-import net.casual.arcade.events.level.LevelEvent
+import net.casual.arcade.events.common.CancellableEvent
+import net.casual.arcade.events.server.level.LevelEvent
 import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.Entity
