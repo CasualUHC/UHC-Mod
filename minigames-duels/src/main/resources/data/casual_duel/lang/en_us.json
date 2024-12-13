@@ -23,6 +23,8 @@
   "casual.duel.playerNotDueling": "That player is currently not dueling",
   "casual.duel.teleportingToDuel": "Teleporting to duel!",
 
+  "casual.duel.leaveDuel": "You can leave this duel by running %s",
+
   "casual.duel.starting": "Starting Duel!",
 
   "casual.duel.alreadyNotReady": "You have already declined this duel!",

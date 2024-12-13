@@ -11,13 +11,14 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.During
 import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.annotation.ListenerFlags
-import net.casual.arcade.minigame.events.MinigameInitializeEvent
-import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent
-import net.casual.arcade.minigame.events.MinigameSetPlayingEvent
-import net.casual.arcade.minigame.events.MinigameSetSpectatingEvent
+import net.casual.arcade.minigame.events.*
 import net.casual.arcade.minigame.managers.MinigameLevelManager
 import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.settings.MinigameSettings
+import net.casual.arcade.utils.ComponentUtils.bold
+import net.casual.arcade.utils.ComponentUtils.color
+import net.casual.arcade.utils.ComponentUtils.command
+import net.casual.arcade.utils.ComponentUtils.mini
 import net.casual.arcade.utils.ItemUtils.isOf
 import net.casual.arcade.utils.LootTableUtils
 import net.casual.arcade.utils.LootTableUtils.addItem
@@ -39,10 +40,12 @@ import net.casual.championships.duel.arena.DuelArena
 import net.casual.championships.common.items.PlayerHeadItem
 import net.casual.championships.common.recipes.GoldenHeadRecipe
 import net.casual.championships.common.util.CommonItems
+import net.casual.championships.common.util.CommonUI.broadcastInfo
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.core.HolderLookup
 import net.minecraft.core.component.DataComponents
+import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
@@ -226,6 +229,13 @@ class DuelMinigame(
             }
             player.inventory.add(stack)
         }
+    }
+
+    @Listener
+    private fun onMinigameAddPlayer(event: MinigameAddNewPlayerEvent) {
+        val leave = Component.literal("/duel leave").mini()
+            .bold().color(0x65b7db).command("/duel leave")
+        this.chat.broadcastInfo(Component.translatable("casual.duel.leaveDuel", leave), listOf(event.player))
     }
 
     @Listener

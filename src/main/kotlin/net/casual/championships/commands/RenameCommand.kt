@@ -8,13 +8,13 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.ComponentArgument
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.commands.arguments.SlotArgument
-import net.minecraft.core.component.DataComponentType
 import net.minecraft.core.component.DataComponents
 import net.minecraft.world.entity.SlotAccess
 
 object RenameCommand: CommandTree {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("rename") {
+            requiresPermission(2)
             literal("item") {
                 argument("player", EntityArgument.player()) {
                     argument("slot", SlotArgument.slot()) {
