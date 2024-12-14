@@ -9,6 +9,7 @@ import net.minecraft.core.registries.Registries
 import net.minecraft.resources.ResourceKey
 import net.minecraft.world.level.biome.Biome
 import net.minecraft.world.level.biome.Biomes
+import java.util.*
 
 class CasualLobbyData(
     val position: Vec3i = Vec3i(0, 1, 0),
@@ -17,6 +18,8 @@ class CasualLobbyData(
     val podiumView: LocationTemplate = LocationTemplate.DEFAULT,
     val fireworkLocations: List<LocationTemplate> = listOf(),
     val biome: ResourceKey<Biome> = Biomes.THE_VOID,
+    val raining: Boolean = false,
+    val timeOfDay: Optional<Int> = Optional.empty(),
     val packs: List<String> = listOf()
 ) {
     companion object {
@@ -30,6 +33,8 @@ class CasualLobbyData(
                 LocationTemplate.CODEC.fieldOf("podium_view").forGetter(CasualLobbyData::podiumView),
                 LocationTemplate.CODEC.listOf().fieldOf("firework_locations").forGetter(CasualLobbyData::fireworkLocations),
                 ResourceKey.codec(Registries.BIOME).encodedOptionalFieldOf("biome", Biomes.THE_VOID).forGetter(CasualLobbyData::biome),
+                Codec.BOOL.optionalFieldOf("raining", false).forGetter(CasualLobbyData::raining),
+                Codec.INT.optionalFieldOf("time_of_day").forGetter(CasualLobbyData::timeOfDay),
                 Codec.STRING.listOf().encodedOptionalFieldOf("packs", listOf()).forGetter(CasualLobbyData::packs)
             ).apply(instance, ::CasualLobbyData)
         }

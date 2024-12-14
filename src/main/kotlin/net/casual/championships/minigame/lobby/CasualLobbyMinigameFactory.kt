@@ -40,13 +40,24 @@ class CasualLobbyMinigameFactory(
     }
 
     override fun create(context: MinigameCreationContext): CasualLobbyMinigame {
+        this.readStructureData()
         val level = CustomLevelBuilder.build(context.server) {
             randomDimensionKey()
             dimensionType(BuiltinDimensionTypes.OVERWORLD)
             chunkGenerator(VoidChunkGenerator(context.server, data.biome))
             defaultLevelProperties()
-            tickTime(true)
             persistence(LevelPersistence.Temporary)
+            if (data.timeOfDay.isEmpty) {
+                tickTime(true)
+            } else {
+                timeOfDay = data.timeOfDay.get().toLong()
+            }
+            weather {
+                if (data.raining) {
+                    raining = true
+                    rainTime = 999999
+                }
+            }
         }
         val area = this.createPlaceableArea(level)
         val minigame = CasualLobbyMinigame(
@@ -79,23 +90,24 @@ class CasualLobbyMinigameFactory(
         return minigame
     }
 
+    private fun readStructureData() {
+        if (!this.name.isEmpty && !this::structure.isInitialized) {
+            val path = lobbies.resolve(this.name.get())
+            try {
+                val (structure, data) = StructureUtils.readWithData(path, CasualLobbyData.CODEC)
+                this.data = data
+                this.structure = structure
+            } catch (e: Exception) {
+                CasualMod.logger.error("Failed to read structure: $path", e)
+            }
+        }
+    }
+
     private fun createPlaceableArea(level: CustomLevel): PlaceableArea {
         if (this.name.isEmpty) {
             return PlaceableAreaTemplate.DEFAULT.create(level)
         }
-        if (this::structure.isInitialized) {
-            return StructureArea(this.structure, this.data.position, level)
-        }
-        val path = lobbies.resolve(this.name.get())
-        try {
-            val (structure, data) = StructureUtils.readWithData(path, CasualLobbyData.CODEC)
-            this.data = data
-            this.structure = structure
-            return StructureArea(structure, data.position, level)
-        } catch (e: Exception) {
-            CasualMod.logger.error("Failed to read structure: $path", e)
-            return PlaceableAreaTemplate.DEFAULT.create(level)
-        }
+        return StructureArea(this.structure, this.data.position, level)
     }
 
     companion object: CodecProvider<CasualLobbyMinigameFactory> {

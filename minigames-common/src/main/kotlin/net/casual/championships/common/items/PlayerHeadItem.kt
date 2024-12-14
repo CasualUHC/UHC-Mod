@@ -26,8 +26,7 @@ class PlayerHeadItem(properties: Properties): HeadItem(properties) {
                 return Component.translatable("${Items.PLAYER_HEAD.descriptionId}.named", name)
             }
         }
-        // TODO: Fix this name
-        return super.getName(stack)
+        return Items.PLAYER_HEAD.name
     }
 
     companion object {

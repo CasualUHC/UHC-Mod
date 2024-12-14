@@ -6,11 +6,11 @@ import com.mojang.brigadier.context.CommandContext
 import it.unimi.dsi.fastutil.ints.IntList
 import net.casual.arcade.commands.*
 import net.casual.arcade.events.ListenerRegistry.Companion.register
+import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.events.server.player.PlayerFallEvent
 import net.casual.arcade.events.server.player.PlayerTeamJoinEvent
 import net.casual.arcade.events.server.player.PlayerTickEvent
 import net.casual.arcade.events.server.player.PlayerTryAttackEvent
-import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.area.PlaceableArea
 import net.casual.arcade.minigame.chat.ChatFormatter
@@ -29,6 +29,7 @@ import net.casual.arcade.minigame.utils.MinigameUtils.isMinigameAdminOrHasPermis
 import net.casual.arcade.resources.utils.ResourcePackUtils.afterPacksLoad
 import net.casual.arcade.scheduler.MinecraftScheduler
 import net.casual.arcade.utils.ComponentUtils.bold
+import net.casual.arcade.utils.ComponentUtils.color
 import net.casual.arcade.utils.ComponentUtils.command
 import net.casual.arcade.utils.ComponentUtils.gold
 import net.casual.arcade.utils.ComponentUtils.green
@@ -311,15 +312,6 @@ class CasualLobbyMinigame(
         }
     }
 
-    @Listener
-    private fun onSequentialMinigameStart(event: SequentialMinigameStartEvent) {
-        this.resetLobbyTime()
-    }
-
-    private fun resetLobbyTime() {
-        this.area.level.dayTime = 12_500L
-    }
-
     override fun startNextMinigame() {
         val minigame = this.next
         if (minigame !is RulesProvider) {
@@ -552,9 +544,11 @@ class CasualLobbyMinigame(
     @Suppress("UnstableApiUsage")
     private fun createSidebar(): Sidebar {
         val name = CasualMinigames.getMinigames().event.name.replace('_', ' ')
-        val sidebar = DynamicSidebar(ComponentElements.of(
-            Component.literal("Casual Championships").mini().yellow().bold()
-        ))
+        val colors = intArrayOf(0xfe0041, 0x009600, 0xf1f1f9)
+        val title = "Casual Championships".withIndex().fold(Component.empty()) { component, (i, char) ->
+            component.append(Component.literal(char.toString()).mini().color(colors[i % 3]).bold())
+        }
+        val sidebar = DynamicSidebar(ComponentElements.of(title))
         val event = SidebarComponent.withCustomScore(
             Component.literal(" Event:").mini().red().bold(),
             Component.literal("$name ").mini().gold()
@@ -590,8 +584,9 @@ class CasualLobbyMinigame(
     }
 
     companion object {
-        private val PRIMARY = IntList.of(0xea3323, 0xff8b00, 0xfebb26, 0x1eb253, 0x017cf3, 0x9c78fe)
-        private val FADE = IntList.of(0xde324c, 0xf4895f, 0xf8e16f, 0x95cf92, 0x369acc, 0x9656a2)
+        // TODO: Make this part of the config
+        private val PRIMARY = IntList.of(0xfe0041, 0x009600, 0xaef1f9)
+        private val FADE = IntList.of(0xfe0041, 0x009600, 0xaef1f9)
 
         private val SHAPES = listOf(Shape.LARGE_BALL, Shape.STAR, Shape.BURST)
 
