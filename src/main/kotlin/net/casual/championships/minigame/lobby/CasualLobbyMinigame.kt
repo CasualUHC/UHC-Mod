@@ -3,7 +3,6 @@ package net.casual.championships.minigame.lobby
 import com.google.common.collect.ImmutableList
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.context.CommandContext
-import it.unimi.dsi.fastutil.ints.IntList
 import net.casual.arcade.commands.*
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerTickEvent
@@ -29,7 +28,6 @@ import net.casual.arcade.minigame.utils.MinigameUtils.isMinigameAdminOrHasPermis
 import net.casual.arcade.resources.utils.ResourcePackUtils.afterPacksLoad
 import net.casual.arcade.scheduler.MinecraftScheduler
 import net.casual.arcade.utils.ComponentUtils.bold
-import net.casual.arcade.utils.ComponentUtils.color
 import net.casual.arcade.utils.ComponentUtils.command
 import net.casual.arcade.utils.ComponentUtils.gold
 import net.casual.arcade.utils.ComponentUtils.green
@@ -105,6 +103,7 @@ class CasualLobbyMinigame(
     private val podiumTemplate: LocationTemplate,
     private val podiumViewTemplate: LocationTemplate,
     private val fireworksLocations: List<LocationTemplate>,
+    private val fireworkColors: List<Int>,
     private val duelArenaTemplates: List<DuelArenasTemplate>,
     private val factory: CasualLobbyMinigameFactory
 ): LobbyMinigame(server, uuid, area, spawn) {
@@ -527,11 +526,11 @@ class CasualLobbyMinigame(
                 duration = Random.nextInt(20, 30).Ticks
 
                 SHAPES.asSequence().shuffled().take(Random.nextInt(1, 4)).forEach { shape ->
-                    val index = Random.nextInt(PRIMARY.size)
+                    val index = Random.nextInt(fireworkColors.size)
                     explosion {
                         shape(shape)
-                        addPrimaryColours(PRIMARY.getInt(index))
-                        addFadeColours(FADE.getInt(index))
+                        addPrimaryColours(fireworkColors[index])
+                        addFadeColours(fireworkColors[index])
                         trail()
                         twinkle()
                     }
@@ -544,10 +543,7 @@ class CasualLobbyMinigame(
     @Suppress("UnstableApiUsage")
     private fun createSidebar(): Sidebar {
         val name = CasualMinigames.getMinigames().event.name.replace('_', ' ')
-        val colors = intArrayOf(0xfe0041, 0x009600, 0xf1f1f9)
-        val title = "Casual Championships".withIndex().fold(Component.empty()) { component, (i, char) ->
-            component.append(Component.literal(char.toString()).mini().color(colors[i % 3]).bold())
-        }
+        val title = Component.literal("Casual Championships").mini().bold()
         val sidebar = DynamicSidebar(ComponentElements.of(title))
         val event = SidebarComponent.withCustomScore(
             Component.literal(" Event:").mini().red().bold(),
@@ -584,10 +580,6 @@ class CasualLobbyMinigame(
     }
 
     companion object {
-        // TODO: Make this part of the config
-        private val PRIMARY = IntList.of(0xfe0041, 0x009600, 0xaef1f9)
-        private val FADE = IntList.of(0xfe0041, 0x009600, 0xaef1f9)
-
         private val SHAPES = listOf(Shape.LARGE_BALL, Shape.STAR, Shape.BURST)
 
         private val MINESWEEPER_RECORD_STAT = StatType.int32(CasualMod.id("minesweeper_record"), Int.MAX_VALUE)

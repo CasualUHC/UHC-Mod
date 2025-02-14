@@ -84,8 +84,7 @@ object CommonUI {
         )
     }
 
-    fun getBorderSidebarElements(): Array<PlayerSpecificElement<SidebarComponent>> {
-        val buffer = SpacingFontResources.spaced(4)
+    fun getBorderSidebarElements(buffer: Component): Array<PlayerSpecificElement<SidebarComponent>> {
         return arrayOf(
             BorderStatusElement(buffer).cached(),
             BorderDistanceElement(buffer),

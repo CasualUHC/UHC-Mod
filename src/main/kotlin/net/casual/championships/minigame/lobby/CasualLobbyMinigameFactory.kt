@@ -68,6 +68,7 @@ class CasualLobbyMinigameFactory(
             this.data.podium,
             this.data.podiumView,
             this.data.fireworkLocations,
+            this.data.fireworkColors,
             this.duelArenas,
             this
         )

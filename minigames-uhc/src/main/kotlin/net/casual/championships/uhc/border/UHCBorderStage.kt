@@ -8,13 +8,19 @@ enum class UHCBorderStage(
     private val startSize: Double,
     private val endSize: Double,
     private val movingTime: MinecraftTimeDuration = MinecraftTimeDuration.ZERO,
-    private val pausedTime: MinecraftTimeDuration = MinecraftTimeDuration.ZERO
+    val pausedTime: MinecraftTimeDuration = MinecraftTimeDuration.ZERO
 ) {
     First(6128.0, 3064.0, 48.Minutes, 10.Minutes), // ~1.05BPS
     Second(First.endSize, 1532.0, 26.Minutes, 5.Minutes), // ~1BPS
     Third(Second.endSize, 510.0, 18.Minutes, 2.Minutes), // ~0.95BPS
     Fourth(Third.endSize, 102.0, 8.Minutes, 1.Minutes), // ~0.85BPS
     Fifth(Fourth.endSize, 20.0, 2.Minutes); // ~0.68BPS
+
+    fun getRemainingMovingTime(size: Double, level: Level, multiplier: Double): MinecraftTimeDuration {
+        val remainingSize = size - this.getEndSizeFor(level, multiplier)
+        val totalSize = this.getStartSizeFor(level, multiplier) - this.getEndSizeFor(level, multiplier)
+        return this.movingTime * (remainingSize / totalSize)
+    }
 
     fun getRemainingMovingTimeAsPercent(size: Double, level: Level, multiplier: Double): Double {
         val remainingSize = size - this.getEndSizeFor(level, multiplier)
