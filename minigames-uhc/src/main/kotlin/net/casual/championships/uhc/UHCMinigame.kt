@@ -418,6 +418,13 @@ class UHCMinigame(
 
     @Listener
     private fun onPlayerSpectatorTeleport(event: PlayerSpectatorTeleportEvent) {
+        val (player, _) = event
+        if (player.isSpectator && this.players.isSpectating(player)) {
+            val target = event.getTarget()
+            if (target is ServerPlayer) {
+                player.teleportTo(target.location)
+            }
+        }
         event.cancel()
     }
 
